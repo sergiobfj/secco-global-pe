@@ -1,4 +1,5 @@
 {% from "components/icons.html" import icon %}
+{% from "components/mission_identity.html" import mission_flag %}
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -57,14 +58,14 @@
 <div class="workspace">
     <header class="topbar">
         <a href="/" class="topbar-title"><img class="header-logo" src="/static/brand/secco-logo-horizontal-forest.svg" alt="SECCO" width="1640" height="289"><span class="product-name">Global PE</span><span class="topbar-divider">/</span>
-<span>{{ mission.pais if mission else ('Visão consolidada' if current_user and current_user.is_coordinator else 'Visão geral') }}</span>
+<span class="header-mission">{% if mission %}{{ mission_flag(mission.codigo) }}{% endif %}<span class="mission-country-name">{{ mission.pais if mission else ('Visão consolidada' if current_user and current_user.is_coordinator else 'Visão geral') }}</span></span>
 </a>
         <div class="topbar-right">
 {% if mission %}<details class="mission-switch">
 <summary>Trocar missão {{ icon('chevron') }}</summary>
 <div class="switch-menu">
-<a href="/missoes/portugal">Portugal</a>
-<a href="/missoes/argentina">Argentina</a>
+<a href="/missoes/portugal">{{ mission_flag('portugal') }}Portugal</a>
+<a href="/missoes/argentina">{{ mission_flag('argentina') }}Argentina</a>
 <a href="/?selecionar=1">Todas as missões</a>
 </div>
 </details>

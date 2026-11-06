@@ -37,7 +37,7 @@
 {{ field('conferido_por','Quem conferiu a referência',limit=160) }}{{ field('nota_conferencia','O que foi conferido','textarea',limit=4000) }}
 <p class="form-hint">A conferência é declarada manualmente. A identidade da pessoa ainda não é autenticada pelo sistema.</p></details>
 {% else %}
-<div class="context-banner">{{ icon('target') }}<div><strong>Validação da coordenação</strong><p>Não há critérios de qualificação pré-configurados. Identifique a regra da proposta ou a orientação recebida. Uma pendência não entra na meta.</p></div></div>
+<div class="context-banner">{{ icon('target') }}<div><strong>Validação da coordenação</strong><p>Não há critérios de qualificação definidos previamente. Identifique a regra da proposta ou a orientação recebida. Uma pendência não entra na meta.</p></div></div>
 <div class="form-field"><label for="tipo_meta">Meta relacionada</label><select name="tipo_meta" id="tipo_meta">{% for goal in mission.metas %}<option value="{{ goal.tipo_meta }}" {% if values.get('tipo_meta')==goal.tipo_meta %}selected{% endif %}>{{ goal.rotulo }}</option>{% endfor %}</select><span class="field-error" data-error-for="tipo_meta">{{ errors.get('tipo_meta','') }}</span></div>
 {{ field('justificativa','Justificativa da classificação','textarea',limit=4000) }}
 {{ field('criterio_referencia','Referência do critério ou orientação da coordenação','textarea',limit=4000) }}

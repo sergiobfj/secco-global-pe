@@ -2119,3 +2119,57 @@ progress::-moz-progress-bar {
   .nav-item.is-active { background: #e8efdf; }
   .page-footer { font-size: 9px; }
 }
+
+/* Detalhes de viagem e acabamento: sem mudanças na estrutura da operação. */
+.mission-flag { display: inline-block; width: 30px; height: 20px; flex: 0 0 auto; object-fit: contain; border-radius: 2px; outline: 1px solid #1a413b1a; }
+.topbar-title { min-height: 44px; }
+.header-mission { display: inline-flex; align-items: center; gap: 7px; }
+.header-mission .mission-flag, .switch-menu .mission-flag { width: 21px; height: 14px; }
+.switch-menu a { display: flex; align-items: center; gap: 10px; }
+.mission-title { display: flex; align-items: center; gap: 13px; }
+.mission-title .mission-flag { width: 33px; height: 22px; }
+.mission-art h3 { display: flex; align-items: center; gap: 13px; }
+.mission-art h3 .mission-flag { width: 30px; height: 20px; }
+.nav-item .icon { stroke-width: 1.5; }
+.nav-item:focus-visible { outline-offset: -3px; }
+.nav-item.is-active { font-weight: 700; }
+.topbar .account-initials { border-color: #bbcbbb; background: #f0f3e9; }
+.text-link { text-underline-offset: 4px; }
+.switch-menu a:focus-visible, .account-menu > summary:focus-visible { outline-offset: -2px; }
+.operational-empty { border-color: #d7e0d1; }
+.operational-empty > .icon { margin-top: 3px; }
+.operational-empty p { color: #58695f; }
+.today-heading .eyebrow { line-height: 1.8; font-weight: 700; }
+.today-heading .mission-title { letter-spacing: -1.5px; }
+.today-agenda .section-heading h2 { letter-spacing: -0.65px; }
+.login-note, .login-recovery-note { color: #53685d; }
+@media (max-width: 640px) {
+  .topbar .header-logo { width: 76px; }
+  .header-mission { gap: 6px; }
+  .header-mission .mission-flag { width: 18px; height: 12px; }
+  .mission-country-name { font-size: 9px; }
+  .topbar-right .mission-switch summary { font-size: 10px; }
+  .mission-title { gap: 10px; }
+  .mission-title .mission-flag { width: 30px; height: 20px; }
+  .today-heading .mission-title { letter-spacing: -1.2px; }
+  .today-agenda .operational-empty p { line-height: 1.8; }
+  .main-nav { padding-block: 6px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes mission-arrival {
+    from { transform: translateY(3px); }
+    to { transform: translateY(0); }
+  }
+  @keyframes flag-settle {
+    from { transform: rotate(-5deg); }
+    to { transform: rotate(0); }
+  }
+  .today-heading > div:first-child, .planner-heading > div:first-child { animation: mission-arrival 180ms ease-out both; }
+  .mission-title .mission-flag { transform-origin: 10% 50%; animation: flag-settle 220ms ease-out both; }
+  .action-button, .google-button, .mission-link { transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease; }
+  .action-button:active, .google-button:active { transform: translateY(1px); }
+  .nav-item, .day-chip, .switch-menu a, .account-menu > summary { transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .today-heading > div:first-child, .planner-heading > div:first-child, .mission-title .mission-flag { animation: none; transform: none; }
+}

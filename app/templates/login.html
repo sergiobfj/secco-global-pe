@@ -14,7 +14,7 @@
 {% if not configured %}<div class="auth-message" role="status"><strong>Configuração do acesso pendente</strong><p>O login precisa ser configurado pelo responsável antes de liberar o acesso.</p></div>{% endif %}
 {% if retry_from_login %}
 <a class="google-button" href="/login">Tentar novamente <span aria-hidden="true">↗</span></a>
-<p class="login-recovery-note">A próxima tentativa começa em uma página segura, sem reutilizar o retorno anterior.</p>
+<p class="login-recovery-note">Você poderá escolher sua conta Google novamente.</p>
 {% else %}
 <form method="post" action="/auth/google"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="google-button" type="submit" {% if not configured %}disabled aria-describedby="login-note"{% endif %}>Entrar com Google <span aria-hidden="true">↗</span></button></form>
 {% endif %}

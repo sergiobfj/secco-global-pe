@@ -1,0 +1,3 @@
+{% macro mission_flag(code) -%}
+{% if code in ['argentina','portugal'] %}<img class="mission-flag" src="/static/icons/flag-{{ code }}.svg" width="30" height="20" alt="" aria-hidden="true" decoding="async">{% endif %}
+{%- endmacro %}

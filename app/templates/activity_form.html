@@ -15,7 +15,7 @@
 <div class="form-field"><label for="horario_inicio">Início <span>opcional</span></label><input type="time" id="horario_inicio" name="horario_inicio" value="{{ values.get('horario_inicio') or '' }}"><span class="field-error" data-error-for="horario_inicio">{{ errors.get('horario_inicio','') }}</span></div>
 <div class="form-field"><label for="horario_fim">Término <span>opcional</span></label><input type="time" id="horario_fim" name="horario_fim" value="{{ values.get('horario_fim') or '' }}"><span class="field-error" data-error-for="horario_fim">{{ errors.get('horario_fim','') }}</span></div>
 </div>
-<p class="form-hint">Horários no fuso {{ mission.timezone }}. Sem horário confirmado? Deixe em branco. Para atravessar a meia-noite, registre atividades separadas.</p>
+<p class="form-hint">Horários no fuso {{ mission.timezone }}. Sem horário confirmado? Deixe em branco. Se a atividade terminar no dia seguinte, registre cada dia separadamente.</p>
 <details class="form-details" {% if errors or values.get('descricao') or values.get('local') or values.get('endereco') or values.get('participantes') or values.get('observacoes') or values.get('link_externo') or values.get('origem') %}open{% endif %}>
 <summary>Local, participantes e mais detalhes {{ icon('chevron') }}</summary>
 {% if features_diary %}<div class="form-field"><label for="organizacao">Organização envolvida</label><input id="organizacao" name="organizacao" maxlength="200" value="{{ values.get('organizacao','') }}"><span class="field-error" data-error-for="organizacao">{{ errors.get('organizacao','') }}</span></div>{% endif %}

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/mission_identity.html" import mission_flag %}
 
 {% block content %}
 <section class="welcome">
@@ -6,10 +7,10 @@
 <p class="eyebrow">
 <span class="tiny-line">
 </span> INTERNACIONALIZAÇÃO · 2026</p>
-<p class="greeting">Boas-vindas à SECCO Global PE</p>
+<p class="greeting">Que bom ter você por aqui.</p>
 <h1>Escolha sua <span class="accent-word">missão.</span>
 </h1>
-<p class="intro">Sua agenda, os próximos compromissos e o que precisa de atenção. A última missão escolhida será lembrada neste navegador.</p>
+<p class="intro">Sua agenda, os próximos compromissos e o que precisa de atenção. Escolha uma missão para acompanhar a programação.</p>
 </div>
     <div class="overview-stamp" aria-label="{{ missions|length }} missões internacionais">
 <span class="orbital" aria-hidden="true">{{ icon('globe') }}</span>
@@ -37,7 +38,7 @@
 <span>{{ 'EUROPA' if m.codigo=='portugal' else 'AMÉRICA DO SUL' }}</span>
 </div>
 <span class="art-number">0{{ loop.index }}</span>
-<h3>{{ m.pais }}</h3>
+<h3>{{ mission_flag(m.codigo) }}<span>{{ m.pais }}</span></h3>
 </div>
         <div class="mission-card-content">
             <div class="mission-card-status">
