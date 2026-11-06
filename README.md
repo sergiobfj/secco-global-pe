@@ -1,5 +1,7 @@
 # SECCO Global PE
 
+Importação privada de roteiros: [formatos, dry-run, backup, idempotência e separação de dados](docs/importacao-roteiros.md). O código público usa fixtures sintéticas; programações operacionais não são versionadas.
+
 > **Situação consolidada da publicação:** esta cópia usa configuração e participantes fictícios. O responsável informou a validação operacional posterior do Cloud Shell v4 com dois uploads sintéticos e repetição idempotente. Essa execução não foi repetida nesta distribuição; IDs e evidências privados ficam fora do repositório. Os blocos de etapas abaixo são registros históricos e podem mencionar pendências anteriores a essa validação. Consulte o [guia público](docs/distribuicao-publica.md) para instalação e resultados locais.
 
 

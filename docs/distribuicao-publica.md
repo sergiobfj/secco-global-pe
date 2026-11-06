@@ -1,4 +1,4 @@
-# Distribuição pública — estado 14 de 14
+# Distribuição pública
 
 Esta cópia usa dados de exemplo e está separada da aplicação operacional. Países, eventos do programa e ativos de marca foram mantidos. Participantes, contas e identificadores de serviços são fictícios; a observação operacional sobre extensão de viagem foi retirada do seed e da documentação. Nenhuma licença de código aberto foi adicionada.
 
@@ -16,7 +16,11 @@ A migração 002 pública substitui nomes por fictícios e tem checksum `6bcc159
 
 Execute `python -m pytest -q -p no:cacheprovider -rfEs` na raiz do estado, com as dependências instaladas. Os testes usam bancos temporários e identidades/HTTP simulados.
 
-Execução desta distribuição, estado 14: **715 aprovados, 77 ignorados, 0 falhas e 0 erros**, saída 0. As contagens incluem a suíte integral coletada neste estado; testes ignorados não contam como aprovados. Quando houve sanitização textual posterior da agenda, seus testes de renderização e agenda foram executados novamente, sem alterar a lógica Python.
+Atualização de importação privada de agenda: **755 aprovados, 77 ignorados, 0 falhas e 0 erros**, saída 0, em 2026-11-06. Os **40 testes novos** passaram sem skips. A execução integral bloqueou rede externa no processo pytest e manteve os bytes do código conferidos. Houve um aviso de depreciação existente do TestClient/httpx. Nenhum teste usa os documentos oficiais privados ou valida acesso real ao Google Drive.
+
+Uma instalação fictícia em banco temporário aplicou as oito migrações públicas, importou dois compromissos sintéticos e repetiu a operação sem escrita ou duplicação. A renderização após reinício e a integridade SQLite passaram. Foram conferidas 16 combinações de páginas e larguras (360, 390, 768 e 1280 px), com dados fictícios e rede externa bloqueada no navegador. Login Google real e instalação operacional não são resultados desses ensaios. Consulte o [fluxo de importação privada](importacao-roteiros.md).
+
+Registro histórico da distribuição no estado 14: **715 aprovados, 77 ignorados, 0 falhas e 0 erros**, saída 0. Quando houve sanitização textual posterior da agenda, seus testes de renderização e agenda foram executados novamente, sem alterar a lógica Python. Testes ignorados não contam como aprovados em nenhuma das execuções.
 
 ### Testes ignorados
 
@@ -33,7 +37,7 @@ Os testes de pacote/POSIX/renovação/v4 dependem de mapas, planos ou ZIPs opera
 
 Os estados 01–03 reutilizam snapshots preservados. Os estados 04–09 recuperam versões de arquivos registradas nas sessões de desenvolvimento, com a mesma sanitização pública e recomposição de versões completas. Os estados seguintes agrupam o código existente por funcionalidade e trazem as dependências necessárias com seus consumidores. Estes são estados preparados agora para publicação, sem datas retroativas ou alegação de reproduzir cada instante operacional.
 
-Funcionalidade desta etapa: `fix(drive): align Cloud Shell executor ACL policy with mission partners`. Cada commit futuro será criado somente após autorização, com a data real da criação e autoria confirmada.
+Última funcionalidade do histórico inicial: `fix(drive): align Cloud Shell executor ACL policy with mission partners`. Os 14 commits iniciais foram criados com autorização, data real e autoria confirmada. A atualização de agenda acrescenta commits específicos sem reescrever esse histórico.
 
 ## Validação operacional e validação pública
 
