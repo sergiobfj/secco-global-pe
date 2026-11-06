@@ -61,8 +61,8 @@ def test_placeholder_pages(client,section):
     for prefix in ("/secoes/","/missoes/portugal/secoes/","/missoes/argentina/secoes/"):
         response = client.get(prefix+section)
         assert response.status_code == 200
-        if section == "planejamento":
-            assert ("Planejamento" if prefix!="/secoes/" else "Acessar missão") in response.text
+        if section in ("planejamento","diario"):
+            assert (("Planejamento" if section=="planejamento" else "Diário de Atividades") if prefix!="/secoes/" else "Acessar missão") in response.text
         else:
             assert "Funcionalidade em desenvolvimento" in response.text
 

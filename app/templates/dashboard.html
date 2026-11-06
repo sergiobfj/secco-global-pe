@@ -17,18 +17,19 @@
 </section>
 <section class="today-agenda" aria-labelledby="agenda-heading">
   <div class="section-heading compact"><h2 id="agenda-heading">Agenda do dia</h2><a class="text-link" href="/missoes/{{ mission.codigo }}/planejamento?data={{ today.isoformat() }}">Ver outros dias {{ icon('arrow') }}</a></div>
-  {% if today_events %}<div class="activity-list">{% for item in today_events %}{{ activity(item,mission) }}{% endfor %}</div>
+  {% if today_events %}<div class="activity-list">{% for item in today_events %}{{ activity(item,mission,diary_links=diary_links) }}{% endfor %}</div>
   {% else %}<div class="operational-empty">{{ icon('planejamento') }}<div><h3>Hoje, a agenda está aberta.</h3><p>Nenhum compromisso cadastrado para hoje. Consulte os próximos dias ou organize as atividades sem data.</p><a class="text-link" href="/missoes/{{ mission.codigo }}/planejamento">Consultar programação {{ icon('arrow') }}</a></div></div>{% endif %}
   {% if undated_count %}<a class="pending-strip" href="/missoes/{{ mission.codigo }}/planejamento?sem_data=true"><span><strong>{{ undated_count }}</strong> atividades e sugestões sem data</span><span>Organizar {{ icon('arrow') }}</span></a>{% endif %}
 </section>
 <section class="quick-section"><h2 class="visually-hidden">Acesso rápido</h2><div class="quick-links">
   {% for key,label in [('planejamento','Planejamento'),('diario','Diário'),('prestacao-de-contas','Prestação de Contas'),('documentos','Documentos')] %}
-  <a href="{{ '/missoes/'+mission.codigo+'/planejamento' if key=='planejamento' else url_for('mission_section',codigo=mission.codigo,section=key) }}">{{ icon(key) }}<span>{{ label }}<small>{{ 'Dias, locais e atividades' if key=='planejamento' else 'Em desenvolvimento' }}</small></span>{{ icon('arrow','quick-arrow') }}</a>
+  <a href="{{ '/missoes/'+mission.codigo+'/planejamento' if key=='planejamento' else url_for('mission_section',codigo=mission.codigo,section=key) }}">{{ icon(key) }}<span>{{ label }}<small>{{ 'Dias, locais e atividades' if key=='planejamento' else ('Registros e resultados' if key=='diario' and features_diary else 'Em desenvolvimento') }}</small></span>{{ icon('arrow','quick-arrow') }}</a>
   {% endfor %}
 </div></section>
 <section class="summary-section secondary-summary" aria-labelledby="summary-heading"><div class="section-heading compact"><h2 id="summary-heading">O caminho até as metas</h2><span class="quiet-label">{{ situation.mensagem }}</span></div><div class="metrics two-metrics">
 {% for goal in mission.metas %}<article class="metric"><p class="small-label">{{ goal.rotulo }}</p><div class="metric-number">{{ '%02d'|format(goal.realizado) }} <span>/ {{ '%02d'|format(goal.quantidade_alvo) }}</span></div><progress value="{{ goal.realizado }}" max="{{ goal.quantidade_alvo }}" aria-label="{{ goal.rotulo }}: {{ goal.realizado }} de {{ goal.quantidade_alvo }}"></progress><p class="metric-caption">Meta: {{ goal.quantidade_alvo }} {{ 'reuniões qualificadas' if goal.tipo_meta=='reuniao_qualificada' else ('LOIs' if goal.tipo_meta=='loi' else 'manifestações formais') }}</p></article>{% endfor %}
 </div></section>
+{% if features_diary %}{% include "components/diary_summary.html" %}{% endif %}
 <details class="mission-about"><summary>Sobre a missão e pendências {{ icon('chevron') }}</summary><div class="about-content">
   <h2>{{ mission.nome }}</h2><p>{{ mission.periodo }} · Edital FACEPE {{ mission.edital }}</p>
   <ul>{% for p in mission.participantes %}<li>{{ p.nome }}{% if p.financiado_pela_subvencao %}, custeado pela subvenção{% endif %}</li>{% endfor %}</ul>

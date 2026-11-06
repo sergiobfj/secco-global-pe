@@ -21,7 +21,7 @@ SECTIONS = {
 def render(request, template, **context):
     token = csrf_token(request)
     response = templates.TemplateResponse(request=request, name=template, context={
-        "csrf_token": token,
+        "csrf_token": token, "features_diary": True,
         "active": "inicio", "mission": None, **context
     })
     response.set_cookie(COOKIE,token,httponly=True,samesite="strict",path="/")
@@ -52,6 +52,8 @@ def home(request: Request):
 def dashboard(request: Request, codigo: str):
     mission = find_mission(request, codigo)
     context = operational_dashboard(request.app.state.repository,request.app.state.itinerary,mission)
+    context["diary_summary"]=request.app.state.diary.summary(mission.id)
+    context["diary_links"]=request.app.state.diary.links(mission.id)
     response = render(request,"dashboard.html",mission=mission,title=mission.nome,**context)
     return response
 
@@ -61,6 +63,15 @@ def dashboard(request: Request, codigo: str):
 def section_page(request: Request, section: str, codigo: str | None = None):
     if section not in SECTIONS:
         raise HTTPException(404, "Página não encontrada")
+    if section == "diario":
+        if codigo:
+            from app.routers.diary import diary
+            return diary(request,codigo)
+        preferred=request.cookies.get("secco_mission")
+        if preferred in ("portugal","argentina"):
+            from app.routers.diary import diary
+            return diary(request,preferred)
+        return home(request)
     if section == "planejamento":
         if codigo:
             from app.routers.planning import planning

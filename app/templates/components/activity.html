@@ -1,4 +1,4 @@
-{% macro activity(item, mission, show_date=false) %}
+{% macro activity(item, mission, show_date=false, diary_links=none) %}
 <article class="activity-item status-{{ item.status }}">
   <a class="activity-main {{ 'untimed' if not item.horario_inicio else '' }}" href="/missoes/{{ mission.codigo }}/atividades/{{ item.id }}">
     <div class="activity-time">
@@ -15,5 +15,6 @@
     </div>
   </a>
   {% if item.maps_url and item.status!='cancelado' %}<a class="maps-link" href="{{ item.maps_url }}" target="_blank" rel="noopener noreferrer">Como chegar <span aria-hidden="true">↗</span></a>{% endif %}
+{% if diary_links and item.id in diary_links %}<a class="diary-associated" href="/missoes/{{ mission.codigo }}/diario/{{ diary_links[item.id].id }}">Registro no Diário · {{ diary_links[item.id].status }} ↗</a>{% endif %}
 </article>
 {% endmacro %}

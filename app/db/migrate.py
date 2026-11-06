@@ -4,11 +4,13 @@ from pathlib import Path
 
 from app.core.config import ROOT
 from app.db.connection import connect
+from app.core.test_database import enforce_database_policy
 
 MIGRATIONS = ROOT / "app" / "db" / "migrations"
 
 
 def migrate(database_path: Path):
+    enforce_database_policy(database_path)
     database_path.parent.mkdir(parents=True, exist_ok=True)
     with connect(database_path) as db:
         db.execute("""CREATE TABLE IF NOT EXISTS schema_migrations (

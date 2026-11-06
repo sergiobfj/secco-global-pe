@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "components/diary_fields.html" import field,select with context %}
+{% block content %}
+{% set entry_url = '/missoes/'+mission.codigo+'/diario/'+(entry.id|string) if entry else '/missoes/'+mission.codigo+'/diario' %}
+<a class="back-link" href="{{ entry_url }}">{{ icon('back') }}{{ 'Voltar ao registro' if entry else 'Voltar ao Diário' }}</a>
+<section class="form-heading"><p class="eyebrow">{{ mission.nome }}</p><h1>{{ 'Editar registro' if kind=='registro' and entry else title }}</h1>
+<p>{% if kind=='registro' %}Registre o essencial. Rascunhos podem ser completados depois.{% elif kind=='evidencia' %}Associe uma evidência existente ou registre os metadados pendentes.{% else %}Classifique o resultado sem confundir realização com qualificação.{% endif %}</p></section>
+{% if kind=='registro' %}
+{% set action = entry_url+'/editar' if entry else '/missoes/'+mission.codigo+'/diario/novo' %}
+{% else %}{% set segment='evidencias' if kind=='evidencia' else 'metas' %}{% set action=entry_url+'/'+segment+'/'+(related.id|string)+'/editar' if related else entry_url+'/'+segment+('/nova' if kind=='evidencia' else '/nova') %}{% endif %}
+<form class="activity-form diary-form" method="post" action="{{ action }}" data-activity-form data-form-kind="{{ kind }}" data-current-url="{{ entry_url }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="request_key" value="{{ values.get('request_key','') }}"><input type="hidden" name="version" value="{{ values.get('version','') }}">
+{% if kind=='registro' %}<input type="hidden" name="itinerary_item_id" value="{{ values.get('itinerary_item_id') or '' }}">{% else %}<input type="hidden" name="entry_version" value="{{ values.get('entry_version',entry.version) }}">{% endif %}
+{% if kind=='classificacao' %}<input type="hidden" name="evidence_versions" value="{{ evidence_versions|tojson|forceescape }}">{% endif %}
+<div class="form-errors" role="alert" tabindex="-1" {% if not errors %}hidden{% endif %}><strong>Confira os campos. Seu preenchimento foi preservado.</strong><ul>{% for key,error in errors.items() %}<li>{{ error }}</li>{% endfor %}</ul>{% if errors.get('form') %}<a href="{{ entry_url }}" target="_blank" rel="noopener">Conferir registros em outra aba</a>{% endif %}</div>
+{% if kind=='registro' %}
+{% if values.get('itinerary_item_id') %}<div class="context-banner">{{ icon('planejamento') }}<div><strong>Informações aproveitadas da agenda</strong><p>Revise os dados do que ocorreu. Salvar este registro não altera o status do compromisso.</p></div></div>{% endif %}
+{{ field('titulo','Título',limit=160) }}
+<div class="form-grid">{{ select('tipo','Tipo de atividade',types) }}{{ select('status','Status do registro',statuses) }}{{ field('data','Data local','date') }}{{ field('horario','Horário opcional','time') }}</div>
+{{ field('descricao','O que aconteceu','textarea',limit=8000,rows=4) }}
+{{ field('resultados','Resultados obtidos','textarea',limit=8000,rows=3) }}
+<p class="form-hint">Para concluir como Realizada, informe título, data, o que aconteceu e resultados. Um rascunho pode ficar incompleto.</p>
+<details class="form-details" {% if errors %}open{% endif %}><summary>Organização, participantes e próximos passos {{ icon('chevron') }}</summary>
+{{ field('organizacao','Organização envolvida',limit=200) }}{{ field('local','Local',limit=400) }}
+<fieldset class="participants-field"><legend>Participantes</legend>{% for person in mission.participantes %}<label class="checkbox-label"><input type="checkbox" name="participantes" value="{{ person.id }}" {% if person.id|string in values.get('participantes',[]) %}checked{% endif %}>{{ person.nome }}</label>{% endfor %}<span class="field-error" data-error-for="participantes">{{ errors.get('participantes','') }}</span></fieldset>
+{{ field('objetivo','Objetivo','textarea',limit=4000) }}{{ field('proximos_passos','Próximos passos','textarea',limit=4000) }}
+</details>
+{% if entry %}<p class="agenda-guidance">Alterar este registro devolve suas classificações para validação. O histórico é preservado.</p>{% endif %}
+{% elif kind=='evidencia' %}
+<div class="context-banner">{{ icon('documentos') }}<div><strong>Upload oficial pendente de integração</strong><p>Nenhum arquivo será enviado ou armazenado. Uma referência externa só é conferida após revisão manual do documento existente.</p></div></div>
+{{ field('titulo','Título da evidência',required=true,limit=200) }}
+<div class="form-grid">{{ select('tipo','Tipo de evidência',evidence_types) }}{{ select('status','Situação da evidência',evidence_statuses) }}</div>
+{{ field('referencia_url','Link HTTPS do documento existente','url',limit=2000) }}
+{{ field('referencia_chave','Identificador único do documento',limit=400) }}
+<p class="form-hint">Use a identificação real do documento, como número, ID externo ou hash já conhecido. Não é necessário criar um nome técnico de arquivo.</p>
+<details class="form-details" data-review-details {% if errors or values.get('status')=='referencia_conferida' %}open{% endif %}><summary>Conferência manual da referência {{ icon('chevron') }}</summary>
+{{ field('conferido_por','Quem conferiu a referência',limit=160) }}{{ field('nota_conferencia','O que foi conferido','textarea',limit=4000) }}
+<p class="form-hint">A conferência é declarada manualmente. A identidade da pessoa ainda não é autenticada pelo sistema.</p></details>
+{% else %}
+<div class="context-banner">{{ icon('target') }}<div><strong>Validação da coordenação</strong><p>Não há critérios de qualificação pré-configurados. Identifique a regra da proposta ou a orientação recebida. Uma pendência não entra na meta.</p></div></div>
+<div class="form-field"><label for="tipo_meta">Meta relacionada</label><select name="tipo_meta" id="tipo_meta">{% for goal in mission.metas %}<option value="{{ goal.tipo_meta }}" {% if values.get('tipo_meta')==goal.tipo_meta %}selected{% endif %}>{{ goal.rotulo }}</option>{% endfor %}</select><span class="field-error" data-error-for="tipo_meta">{{ errors.get('tipo_meta','') }}</span></div>
+{{ field('justificativa','Justificativa da classificação','textarea',limit=4000) }}
+{{ field('criterio_referencia','Referência do critério ou orientação da coordenação','textarea',limit=4000) }}
+<div class="form-field"><label for="evidence_id">Comprovação associada</label><select name="evidence_id" id="evidence_id"><option value="">Pendente de comprovação</option>{% for evidence_item in evidence %}<option value="{{ evidence_item.id }}" {% if values.get('evidence_id')|string==evidence_item.id|string %}selected{% endif %}>{{ evidence_item.titulo }} · {{ evidence_statuses[evidence_item.status] }}</option>{% endfor %}</select><span class="field-error" data-error-for="evidence_id">{{ errors.get('evidence_id','') }}</span></div>
+{{ select('validacao_status','Decisão da coordenação',decisions) }}
+<details class="form-details" data-review-details {% if errors or values.get('validacao_status')!='pendente' %}open{% endif %}><summary>Informar a aprovação recebida {{ icon('chevron') }}</summary>{{ field('validado_por','Responsável pela validação',limit=160) }}<p class="form-hint">Registre apenas uma decisão efetivamente recebida. Esta informação é manual, sem autenticação da coordenação nesta etapa.</p></details>
+<p class="agenda-guidance">A aprovação exige atividade Realizada, justificativa, critério identificado e referência conferida do tipo correspondente. Rascunhos e resultados sem comprovação não são contabilizados.</p>
+{% endif %}
+<div class="save-bar"><span class="form-feedback" role="status" aria-live="polite"></span><button class="action-button" type="submit">{{ 'Salvar registro' if kind=='registro' else ('Salvar referência' if kind=='evidencia' else 'Salvar classificação') }} {{ icon('check') }}</button></div>
+</form>
+{% endblock %}

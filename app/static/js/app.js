@@ -34,7 +34,7 @@ function showErrors(form, errors) {
   summary.append(title, list);
   if (errors.form && form.action.endsWith("/editar")) {
     const link = document.createElement("a");
-    link.href = form.action.slice(0, -7);
+    link.href = form.dataset.currentUrl || form.action.slice(0, -7);
     link.target = "_blank";
     link.rel = "noopener";
     link.textContent = "Conferir versão atual em outra aba";
@@ -63,7 +63,7 @@ document.addEventListener("submit", async (event) => {
   if (!form.matches("[data-activity-form]")) return;
   event.preventDefault();
   const fields = form.elements;
-  if (fields.namedItem("titulo")) {
+  if (fields.namedItem("horario_inicio")) {
     const day = fields.namedItem("data");
     const start = fields.namedItem("horario_inicio");
     const end = fields.namedItem("horario_fim");
@@ -79,6 +79,12 @@ document.addEventListener("submit", async (event) => {
         "O término deve ser posterior ao início, no mesmo dia.",
       );
     }
+  }
+  if (form.dataset.formKind === "registro") {
+    const realized = fields.namedItem("status").value === "realizada";
+    ["titulo", "data", "descricao", "resultados"].forEach(
+      (name) => (fields.namedItem(name).required = realized),
+    );
   }
   if (!form.reportValidity()) return;
   const button = form.querySelector('button[type="submit"]');
@@ -195,3 +201,26 @@ window.addEventListener("popstate", () => {
 });
 revealSelectedDay();
 // Não há upload, cache de dados, service worker ou sincronização nesta etapa.
+
+// Campos obrigatórios acompanham o status, inclusive ao voltar de Realizada para Rascunho.
+document.addEventListener("change", (event) => {
+  const form = event.target.closest('[data-form-kind="registro"]');
+  if (!form || event.target.name !== "status") return;
+  const realized = event.target.value === "realizada";
+  ["titulo", "data", "descricao", "resultados"].forEach((name) => {
+    form.elements.namedItem(name).required = realized;
+  });
+});
+
+// Campos de conferência aparecem quando a pessoa escolhe informar uma decisão.
+document.addEventListener("change", (event) => {
+  const form = event.target.closest(".diary-form");
+  if (!form) return;
+  const details = form.querySelector("[data-review-details]");
+  if (
+    details &&
+    ["status", "validacao_status"].includes(event.target.name) &&
+    event.target.value !== "pendente"
+  )
+    details.open = true;
+});

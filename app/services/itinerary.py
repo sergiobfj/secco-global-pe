@@ -10,7 +10,7 @@ STATUSES = {"sugestao":"Sugestão","a_confirmar":"A confirmar","confirmado":"Con
 ORIGINS = {"edital":"Edital","proposta_aprovada":"Proposta aprovada",
            "agenda_oficial":"Agenda oficial","sugestao_viajantes":"Sugestão dos viajantes"}
 WEEKDAYS = ("segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado","domingo")
-LIMITS = {"titulo":160,"descricao":4000,"local":200,"endereco":400,"observacoes":4000,"link_externo":2000}
+LIMITS = {"titulo":160,"organizacao":200,"descricao":4000,"local":200,"endereco":400,"observacoes":4000,"link_externo":2000}
 
 
 class InvalidActivity(ValueError):

@@ -67,8 +67,8 @@ def test_real_records_update_summary_and_respect_mission(database,repository):
         db.execute("INSERT INTO mission_tasks(mission_id,titulo) VALUES(?, 'Tarefa de teste')",(mission.id,))
         db.execute("INSERT INTO mission_tasks(mission_id,titulo,concluida) VALUES(?, 'Concluída',1)",(mission.id,))
     updated = repository.get("argentina")
-    assert updated.metas[0].realizado == 1
-    assert updated.metas[0].percentual == 12
+    assert updated.metas[0].realizado == 0
+    assert updated.metas[0].percentual == 0
     assert repository.get("portugal").metas[0].realizado == 0
     view = dashboard_data(repository, updated, datetime.fromisoformat("2026-11-18T12:00:00+00:00"))
     assert len(view["today_events"]) == 1

@@ -11,7 +11,7 @@ def csrf_token(request):
     return request.cookies.get(COOKIE) or secrets.token_urlsafe(32)
 
 
-async def read_form(request: Request):
+async def read_form(request: Request,max_bytes=196608):
     request.app.state.settings.validate()
     origin = request.headers.get("origin")
     expected = f"{request.url.scheme}://{request.url.netloc}"
@@ -29,7 +29,7 @@ async def read_form(request: Request):
     body = bytearray()
     async for chunk in request.stream():
         body.extend(chunk)
-        if len(body)>196608:
+        if len(body)>max_bytes:
             raise HTTPException(413,"O formulário excede o limite permitido.")
     try:
         parsed = parse_qs(body.decode("utf-8"),keep_blank_values=True,max_num_fields=60)

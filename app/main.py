@@ -7,11 +7,13 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.core.config import ROOT, Settings
+from app.core.test_database import testing_enabled
 from app.db.migrate import migrate
 from app.db.seed import seed
 from app.repositories.missions import MissionRepository
-from app.routers import api, web, planning
+from app.routers import api, web, planning, diary
 from app.repositories.itinerary import ItineraryRepository
+from app.repositories.diary import DiaryRepository
 
 
 def create_app(settings: Settings | None = None):
@@ -24,6 +26,7 @@ def create_app(settings: Settings | None = None):
         seed(configuration.database_path)
         application.state.repository = MissionRepository(configuration.database_path)
         application.state.itinerary = ItineraryRepository(configuration.database_path)
+        application.state.diary = DiaryRepository(configuration.database_path)
         for mission in application.state.repository.list():
             application.state.itinerary.import_legacy(mission)
         yield
@@ -35,6 +38,9 @@ def create_app(settings: Settings | None = None):
 
     @application.middleware("http")
     async def local_only_and_headers(request: Request, call_next):
+        qa_instance=request.headers.get("x-secco-qa-instance")
+        if qa_instance and (not testing_enabled() or qa_instance!=getattr(application.state,"qa_instance",None)):
+            return JSONResponse({"detail":"Cliente de QA recusado neste servidor."},status_code=403)
         host = request.client.host if request.client else ""
         try:
             local = ipaddress.ip_address(host).is_loopback
@@ -64,6 +70,7 @@ def create_app(settings: Settings | None = None):
         return response
 
     application.mount("/static", StaticFiles(directory=ROOT / "app" / "static"), name="static")
+    application.include_router(diary.router)
     application.include_router(planning.router)
     application.include_router(web.router)
     application.include_router(api.router)

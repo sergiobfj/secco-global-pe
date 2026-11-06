@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 from app.db.connection import connect
 from app.services.itinerary import present_item
 
-FIELDS = ("titulo","descricao","categoria","status","origem","data","horario_inicio","horario_fim",
+FIELDS = ("organizacao","titulo","descricao","categoria","status","origem","data","horario_inicio","horario_fim",
           "inicio_utc","fim_utc","local","endereco","endereco_validado","observacoes","link_externo")
 
 

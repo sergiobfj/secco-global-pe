@@ -58,7 +58,7 @@ def planning(request: Request,codigo: str,data: str | None=None,sem_data: bool=F
     return render(request,"planning.html",title="Planejamento",active="planejamento",mission=mission,
         items=items,selected=selected,weekday=WEEKDAYS[selected.weekday()],today=today,
         days=calendar_days(mission,selected,today),undated_count=sum(item["data"] is None for item in all_items),
-        sem_data=sem_data)
+        sem_data=sem_data,diary_links=request.app.state.diary.links(mission.id))
 
 
 @router.get("/missoes/{codigo}/atividades/nova",name="new_activity")
@@ -80,7 +80,7 @@ def activity_detail(request: Request,codigo: str,item_id: int):
     item = item_or_404(request,mission,item_id)
     messages = {"salva":"Atividade salva no banco local.","cancelada":"Atividade cancelada. O histórico foi preservado."}
     return render(request,"activity_detail.html",title=item["titulo"],active="planejamento",mission=mission,
-                  item=item,message=messages.get(request.query_params.get("aviso")))
+                  item=item,message=messages.get(request.query_params.get("aviso")),diary_entry_id=request.app.state.diary.for_itinerary(mission.id,item_id))
 
 
 @router.get("/missoes/{codigo}/atividades/{item_id:int}/editar",name="edit_activity")

@@ -17,7 +17,7 @@ class MissionRepository:
         """, (row["id"],))]
         goals = [Goal(**dict(g)) for g in db.execute("""
             SELECT g.tipo_meta,g.quantidade_alvo,COUNT(r.id) AS realizado
-            FROM mission_goals g LEFT JOIN mission_results r
+            FROM mission_goals g LEFT JOIN eligible_goal_claims r
               ON r.mission_id=g.mission_id AND r.tipo_meta=g.tipo_meta
             WHERE g.mission_id=? GROUP BY g.id ORDER BY g.id
         """, (row["id"],))]

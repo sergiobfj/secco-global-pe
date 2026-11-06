@@ -1,0 +1,12 @@
+{% macro field(name,label,kind='text',required=false,limit=4000,rows=3) %}
+<div class="form-field">
+<label for="{{ name }}">{{ label }}{% if required %} <span>obrigatório</span>{% endif %}</label>
+{% if kind=='textarea' %}<textarea id="{{ name }}" name="{{ name }}" maxlength="{{ limit }}" rows="{{ rows }}" {% if required %}required{% endif %} {% if errors.get(name) %}aria-invalid="true"{% endif %} aria-describedby="error-{{ name }}">{{ values.get(name) or '' }}</textarea>
+{% else %}<input id="{{ name }}" name="{{ name }}" type="{{ kind }}" value="{{ values.get(name) or '' }}" {% if kind in ['text','url'] %}maxlength="{{ limit }}"{% endif %} {% if required %}required{% endif %} {% if kind=='date' %}min="2000-01-01" max="2100-12-31"{% endif %} {% if errors.get(name) %}aria-invalid="true"{% endif %} aria-describedby="error-{{ name }}">
+{% endif %}
+<span id="error-{{ name }}" class="field-error" data-error-for="{{ name }}">{{ errors.get(name,'') }}</span>
+</div>
+{% endmacro %}
+{% macro select(name,label,choices,empty=false) %}
+<div class="form-field"><label for="{{ name }}">{{ label }}</label><select id="{{ name }}" name="{{ name }}" aria-describedby="error-{{ name }}">{% if empty %}<option value="">Selecionar depois</option>{% endif %}{% for key,label in choices.items() %}<option value="{{ key }}" {% if values.get(name)==key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select><span id="error-{{ name }}" class="field-error" data-error-for="{{ name }}">{{ errors.get(name,'') }}</span></div>
+{% endmacro %}
