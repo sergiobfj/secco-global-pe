@@ -6,7 +6,7 @@
 > **Distribuição pública:** nomes, e-mails, domínio Google Workspace, IDs de Drive/pastas e identificadores Google Cloud deste documento são fictícios. Resultados e decisões descritos referem-se ao projeto operacional.
 
 
-Atualização 07C: existe uma entrada **independente** para futuro ensaio de dois arquivos sintéticos, com transporte HTTPS e impersonação temporária preparados, sujeitos a autorização explícita. O adaptador normal da aplicação e `RECEIPTS_DRIVE_MODE` continuam bloqueados/desativados. Nenhum ensaio real foi executado. O procedimento 07C (`ensaio-supervisionado-drive.md`, não incluído nesta etapa da distribuição) detalha os gates, escopos efetivamente exigidos, backup/restauração e a limpeza separada; a validação 07C (`validacao-etapa07c.md`, não incluído nesta etapa da distribuição) registra as evidências. Os limites descritos abaixo continuam aplicáveis à integração operacional.
+Atualização 07C: existe uma entrada **independente** para futuro ensaio de dois arquivos sintéticos, com transporte HTTPS e impersonação temporária preparados, sujeitos a autorização explícita. O adaptador normal da aplicação e `RECEIPTS_DRIVE_MODE` continuam bloqueados/desativados. Nenhum ensaio real foi executado. O [procedimento 07C](ensaio-supervisionado-drive.md) detalha os gates, escopos efetivamente exigidos, backup/restauração e a limpeza separada; a [validação 07C](validacao-etapa07c.md) registra as evidências. Os limites descritos abaixo continuam aplicáveis à integração operacional.
 
 ## Situação e limites
 

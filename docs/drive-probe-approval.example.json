@@ -1,0 +1,15 @@
+{
+  "reference": "PENDENTE-DE-APROVACAO-EXPLICITA",
+  "operator_account": "PREENCHER@secco.example",
+  "expires_at": "PREENCHER-UTC-ATE-60-MINUTOS",
+  "mapping_sha256": "ed3b2b8b7567a85e13725b044ea0144caaeb9fb7fd4b23b0156983a6f3006066",
+  "plan_sha256": "33ea1b63f3fcefa26837d30c0118a3d3d8f2c0e6ffbd4ab4bbda54dd7af4f012",
+  "scopes": [
+    "https://www.googleapis.com/auth/drive.file",
+    "https://www.googleapis.com/auth/drive.metadata.readonly"
+  ],
+  "approved": false,
+  "synthetic_only": true,
+  "backup_verified": false,
+  "cleanup": "retain"
+}

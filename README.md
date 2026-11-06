@@ -1,183 +1,241 @@
 # SECCO Global PE
 
+> **Situação consolidada da publicação:** esta cópia usa configuração e participantes fictícios. O responsável informou a validação operacional posterior do Cloud Shell v4 com dois uploads sintéticos e repetição idempotente. Essa execução não foi repetida nesta distribuição; IDs e evidências privados ficam fora do repositório. Os blocos de etapas abaixo são registros históricos e podem mencionar pendências anteriores a essa validação. Consulte o [guia público](docs/distribuicao-publica.md) para instalação e resultados locais.
+
+
 > **Distribuição pública:** participantes, e-mails, domínio Workspace, IDs de Drive/pastas e projeto Cloud são fictícios. Documentos de validação preservam registros do desenvolvimento operacional; seus números não são resultados desta cópia pública. A validação da distribuição está em `docs/distribuicao-publica.md`.
 
 
 > **Distribuição pública.** Dados pessoais, identificadores do Google Workspace/Drive/Cloud e artefatos operacionais foram substituídos por valores fictícios ou removidos. Nenhuma licença de código aberto é concedida.
 
 
-Aplicação local para operar as missões internacionais da SECCO. Python 3.12, FastAPI, SQLite, Jinja2 e JavaScript puro. A visão Hoje continua sendo a entrada da missão escolhida, com a agenda antes dos indicadores.
+Revisão 07C de menor privilégio: o ensaio usa somente `drive.file` + `drive.metadata.readonly`, consulta as pastas conhecidas via `files.get` e bloqueia `drives.get`/escopos mais amplos. A escrita sob pastas existentes ainda requer validação real autorizada. Consulte o [plano revisado](docs/ensaio-supervisionado-drive.md) e a [validação local](docs/validacao-etapa07c-menor-privilegio.md). Integração real permanece desativada.
 
-## Funcionalidades
+Etapa 07C: ensaio independente preparado, offline por padrão, com dois PNGs sintéticos, journal/backup em SQLite temporário e transporte HTTP restrito atrás de aprovação explícita. **No registro inicial desta etapa, nenhum upload real havia sido executado; a aplicação mantém o envio real desativado.** Consulte o [procedimento e checklist de autorização](docs/ensaio-supervisionado-drive.md) e a [validação 07C](docs/validacao-etapa07c.md). Não iniciar a aplicação operacional ou aplicar a migração 008 para executar esse ensaio.
 
-- Marca oficial, favicon e fontes locais; navegação responsiva.
-- Portugal e Argentina, quatro participantes e metas aprovadas.
-- Agenda diária, sugestões sem data, criação, edição, cancelamento e histórico.
-- Diário profissional com seis tipos, rascunhos, atividades realizadas e canceladas.
-- Registrar resultado a partir de um compromisso, aproveitando seus dados e preservando um vínculo único.
-- Metadados de evidências e classificação explícita para metas, com validação manual e controle de versões.
-- Reuniões realizadas, qualificadas, LOIs/manifestações, atividades recentes e rascunhos pendentes.
-- CSRF, validação no servidor, idempotência e proteção contra edição concorrente.
-- Bancos de testes exclusivamente temporários, com bloqueio de caminhos persistentes.
+Continuação 07B: os 14 destinos informados pelo responsável após leitura supervisionada no Cloud Shell foram mapeados na configuração operacional; nesta distribuição, `.env.example` traz IDs fictícios no mesmo formato. A validação mantém os nomes exatos por missão, incluindo **Deslocamento** na Argentina e **Deslocamentos** em Portugal. **Integração real continua desativada**; `.env`, banco operacional e migrações foram preservados. Consulte o [mapeamento e os pré-requisitos do ensaio futuro](docs/integracao-google-drive.md) e a [validação 07B](docs/validacao-etapa07b.md).
 
-Não há autenticação, upload, cadastro financeiro, sincronização offline ou publicação. Uma referência externa conferida não significa que o aplicativo armazenou ou verificou o arquivo automaticamente.
+Etapa 07A: infraestrutura de integração com os dois Google Shared Drives, com credenciais desacopladas, journal remoto, idempotência e verificação de integridade/permissões. **Exclusivamente simulada e desativada por padrão; uploads reais continuam bloqueados.** Validação: **522 testes aprovados, zero falhas e dois avisos de depreciação existentes**. Consulte [o guia da integração](docs/integracao-google-drive.md) e [a validação 07A](docs/validacao-etapa07a.md). A migração 008 não foi aplicada ao banco operacional. Não inicie a versão operacional antes de backup validado e autorização da migração; o startup existente aplica migrações pendentes.
+
+Etapa 06.1: recuperação do login OAuth corrigida e acabamento visual refinado. Validação: **469 testes aprovados, 0 falhas, 0 erros e 2 avisos**, com uma única suíte integral; 24 layouts revisados. O login Google real continua pendente de validação manual. Consulte [a validação da etapa](docs/validacao-etapa061.md).
+
+Aplicação local para operar as missões internacionais da SECCO. Python 3.12, FastAPI, SQLite, Jinja2 e JavaScript puro. A visão Hoje mantém a agenda como prioridade.
+
+## Etapa 06
+
+**Implementação pronta, ativação real pendente.** Domínio confirmado no projeto operacional (nesta distribuição, o fictício secco.example). Allowlist explícita para Tiago, Bruno, Hugo, Alan e Marcos. Os quatro viajantes entram na visão Hoje de sua missão; Marcos tem coordenação somente de consulta e chega à visão consolidada, sem vínculo de viajante ou acesso financeiro.
+
+A implementação reutiliza OIDC e sessões da etapa 4. A migração aditiva 007 cria contas/sessões de coordenação sem alterar participantes, autoria ou subvenção. Startup normal não cria usuários reais; o provisionamento exige comando explícito do responsável em banco previamente migrado. O .env operacional e as contas Google não foram alterados.
+
+**Validação automatizada: 445 aprovados, 0 falhas, 0 erros e 2 avisos em 158,06 segundos, em uma única suíte integral.** Login real continua pendente.
+
+Consulte [configuração Google Workspace](docs/configuracao-google-workspace.md), [autenticação](docs/autenticacao.md) e [validação da etapa 06](docs/validacao-etapa06.md). O callback local inicial foi verificado em http://127.0.0.1:8003/auth/google/callback. Credenciais e teste manual real permanecem pendentes.
+
+## Etapa 05B
+
+Armazenamento local privado e persistente, exclusivamente sintético, com recuperação após reinício, publicação sem sobrescrita, journal, quarentena, exclusão autorizada e histórico. O modo temporário da 05A continua padrão. Um diretório existente não ativa a persistência.
+
+A ativação local exige RECEIPTS_STORAGE_BACKEND=local e RECEIPTS_PRIVATE_DIR absoluto fora do projeto, além de captura sintética habilitada e autenticação configurada. Produção e uso com comprovantes reais permanecem bloqueados. A .env operacional não foi modificada e a migração 006 não foi aplicada ao banco operacional nesta rodada.
+
+**Validação final: 400 testes aprovados, 0 falhas, 0 erros e 2 avisos em 362,57 segundos, em uma única execução integral.**
+
+Veja [armazenamento de comprovantes](docs/armazenamento-comprovantes.md) para configuração, consistência, permissões, limites e backup; [validação 05B](docs/validacao-etapa05b.md) registra os resultados. Não há API Drive ou aprovação automática.
+
+## Etapa 05A
+
+Captura rápida exclusivamente sintética, com formulário mobile, prévia de JPEG/PNG e PDF, rascunho, checklist contextual, edição com versão e anexos privados por autor. Exige sessão autenticada, permissão por missão e RECEIPTS_SYNTHETIC_ENABLED=true em development. Arquivos são temporários e não garantem conservação. Não utilize comprovantes reais.
+
+Veja [captura de comprovantes](docs/captura-comprovantes.md) para ativação, limites, funcionamento e pendências; [arquivos da etapa](docs/arquivos-etapa05a.md) registra as alterações. Nenhum servidor foi iniciado e a migração operacional não foi aplicada nesta rodada.
+
+## Etapa 4
+
+- Google OpenID Connect com Authorization Code, PKCE S256, state e nonce.
+- Validação criptográfica no servidor, claim hd, e-mail verificado e allowlist explícita.
+- Vínculo estável pelo sub a participantes existentes, sem duplicar cadastros.
+- Sessões opacas no servidor, expiração, renovação, logout e CSRF vinculado à sessão.
+- Consulta das duas missões e edição somente na missão do participante ou com concessão explícita.
+- Autoria na agenda, Diário, evidências, classificações e respectivos históricos.
+- Tela de login com identidade oficial SECCO e menu da conta.
+- Missão padrão persistida por usuário, abrindo diretamente Hoje.
+- Administração local simples, sem painel complexo ou privilégios financeiros implícitos.
+
+**O login Google real ainda não foi configurado ou validado.** Domínio e cinco e-mails estão confirmados no projeto operacional (fictícios nesta distribuição); credenciais, configuração operacional e validação manual permanecem pendentes. Sem configuração completa, as rotas de dados ficam bloqueadas e o login informa a pendência.
+
+PyJWT 2.15.1 e cryptography 50.0.2 foram instalados manualmente e confirmados no ambiente virtual. A validação final da etapa 4 aprovou 289 testes com essas versões.
+
+As funcionalidades anteriores continuam disponíveis para usuários autorizados: agenda, Diário, metas, histórico, CSRF, concorrência e navegação responsiva. A etapa 05A permite cadastro e upload exclusivamente sintéticos em armazenamento temporário, sem integração Drive, sincronização offline ou deploy. O uso financeiro real permanece bloqueado.
 
 ## Executar localmente
 
-Para instalação nova, em PowerShell:
+Para instalação nova em PowerShell, com acesso autorizado ao registro de pacotes:
 
 ```powershell
 py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-Copy-Item .env.example .env
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8002 --no-proxy-headers
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8003 --no-proxy-headers --no-access-log
 ```
 
-Abra http://127.0.0.1:8002. Encerre seu servidor pelo terminal com Ctrl+C. Nesta máquina, a versão anterior na porta 8001 foi preservada; não tente encerrar à força o processo antigo da porta 8000. A nova etapa usa 8002 para revisão local.
+Abra http://127.0.0.1:8003. Sem credenciais, é esperado ver Configuração do acesso pendente e HTTP 503 no login. Isso não libera acesso anônimo aos dados.
 
-O ambiente virtual, .env e SQLite desta entrega já estão preparados. Para iniciar novamente basta o comando uvicorn. Não substitua um .env existente sem revisar. A aplicação aplica migrações pendentes no startup, sem apagar o banco.
 
-Em Linux/macOS, use python3.12, .venv/bin/python e o mesmo comando de uvicorn. Não use Docker. As dependências de runtime continuam as mesmas, sem frameworks de frontend ou bibliotecas de upload.
 
-## Configuração e segurança
+Em Linux/macOS, use python3.12 e .venv/bin/python nos mesmos comandos. Não há Docker. Não publique a aplicação: o acesso continua limitado a loopback, inclusive com a estrutura de autenticação preparada.
 
-| Variável      | Valor local                                              |
-| ------------- | -------------------------------------------------------- |
-| APP_ENV       | development                                              |
-| DEV_NO_AUTH   | true                                                     |
-| DATABASE_PATH | data/secco.sqlite3, relativo à raiz, ou caminho absoluto |
+## Configuração autorizada
 
-A aplicação recusa produção e exige autorização explícita para desenvolvimento sem login. Cada POST valida a configuração, CSRF e origem. Somente clientes loopback e hosts locais são aceitos. Use 127.0.0.1 e --no-proxy-headers, sem túnel ou publicação.
+| Variável | Uso |
+| --- | --- |
+| APP_ENV | development nesta entrega |
+| DEV_NO_AUTH | false como padrão seguro |
+| DATABASE_PATH | data/secco.sqlite3, preservado |
+| GOOGLE_CLIENT_ID | Cliente OAuth Web autorizado |
+| GOOGLE_CLIENT_SECRET | Segredo privado do cliente |
+| GOOGLE_REDIRECT_URI | Callback exato registrado, terminando em /auth/google/callback |
+| GOOGLE_WORKSPACE_DOMAIN | Domínio Workspace autorizado (fictício nesta distribuição) |
+| ALLOWED_USERS | Lista JSON de participant_id e e-mail inicial autorizado |
+| SESSION_SECRET | Segredo aleatório persistente de pelo menos 32 bytes |
+| SESSION_IDLE_SECONDS | 1800 por padrão |
+| SESSION_ABSOLUTE_SECONDS | 43200 por padrão |
+| SESSION_ROTATION_SECONDS | 900 por padrão |
+| RECEIPTS_SYNTHETIC_ENABLED | false por padrão; habilita somente captura sintética local autenticada |
+| RECEIPTS_STORAGE_BACKEND | temporary por padrão; local exige ativação explícita |
+| RECEIPTS_PRIVATE_DIR | Caminho absoluto privado fora do projeto, usado somente pelo adaptador local |
 
-A missão lembrada por cookie é uma preferência, sem autenticação nem autorização. As declarações de conferência de evidências e validação da coordenação são manuais; os nomes ainda não representam identidades autenticadas. Não use dados financeiros reais.
+A .env.example mantém credenciais vazias e traz domínio e e-mails fictícios no formato da configuração operacional. Não envie segredos em mensagens, código ou logs. O preenchimento e a configuração futura do Google Cloud estão descritos em [autenticação](docs/autenticacao.md).
 
-A interface foi validada em viewports móveis, mas o servidor não está aberto à rede do celular. Acesso de aparelhos reais e uso compartilhado dependem de autenticação e autorização futuras.
+No primeiro login verificado, o e-mail identifica o participante da allowlist e o sub é vinculado de forma estável. Mudanças posteriores de e-mail com o mesmo sub preservam o usuário. Uma conta diferente não substitui um vínculo existente reutilizando o e-mail.
 
-## Registrar uma atividade
+Na política SECCO, os viajantes consultam ambas as missões e editam somente sua missão principal. Marcos consulta ambas sem escrita ou acesso a comprovantes privados. Permissão de uso não significa financiamento: Hugo e Bruno continuam custeados; Tiago e Alan continuam fora da subvenção.
 
-1. Abra um compromisso profissional na agenda e toque em Registrar resultado.
-2. Revise os dados aproveitados e selecione o tipo da atividade.
-3. Preencha O que aconteceu e Resultados obtidos. Escolha Realizada somente quando a atividade tiver ocorrido.
-4. Toque em Salvar registro.
+O modo DEV_NO_AUTH=true existe apenas para manutenção local intencional em development, com aviso visual de autoria não autenticada. Ele é recusado em produção e não foi usado para simular os testes de autorização.
 
-Também é possível usar Diário → Registrar atividade para um registro sem compromisso anterior. Rascunho permite salvar preenchimento incompleto e completar depois. O status Realizada exige título, data, descrição e resultados; horário permanece opcional.
+## Usar a aplicação
 
-A missão, título, data, horário, organização, local e participantes conhecidos são aproveitados da agenda. O vínculo é explícito e único. Reabrir Registrar resultado leva ao registro existente. Turismo não oferece essa conversão. Salvar o Diário não altera automaticamente o status do compromisso.
+Depois de entrar, Hoje abre na missão padrão do usuário. A troca de missão fica no cabeçalho. O menu da conta mostra o nome, o perfil/visão principal definida pelo servidor e oferece Sair do aplicativo. A visão consolidada é a entrada de Marcos.
 
-Uma edição conserva o histórico e invalida classificações anteriores. Cancelar é uma alteração de status, sem exclusão física. Erros mantêm os campos, inclusive com JavaScript desabilitado. Fechar ou recarregar um formulário ainda não salvo pode perder o preenchimento.
+Em Planejamento, escolha o dia ou Sem data. Sugestão e A confirmar não são compromissos confirmados. Horários continuam opcionais. O mapa aparece somente com endereço conferido.
+
+Para registrar um resultado: compromisso profissional → Registrar resultado → revisar dados e completar descrição/resultados → Salvar registro. O vínculo é explícito e único, sem alterar automaticamente o compromisso. Turismo não gera Diário profissional.
+
+Também é possível criar registros diretamente no Diário. Rascunhos podem ficar incompletos; Realizada exige título, data, descrição e resultados. Organização, local, participantes, objetivo e próximos passos são progressivos. Erros preservam o preenchimento quando aplicável, com JavaScript ou no retorno de validação HTML.
 
 ## Metas e evidências
 
 Portugal: 10 reuniões qualificadas e 3 LOIs. Argentina: 8 reuniões qualificadas e 3 manifestações formais de interesse.
 
-Uma reunião realizada aparece no indicador de realização, mas não se torna qualificada automaticamente. Para contar em uma meta, o registro precisa estar Realizada, possuir classificação justificada, referência do critério da proposta ou orientação da coordenação, aprovação manual informada e evidência correspondente com referência externa conferida.
+Uma reunião realizada não se torna qualificada automaticamente. A contagem exige registro Realizada, classificação justificada, critério informado, aprovação declarada e evidência correspondente com referência externa conferida. Rascunhos, cancelamentos e pendências não contam.
 
-Não há critérios de qualificação inventados ou pré-configurados. Sem orientação/documento verificável, mantenha Pendente de validação. LOI exige carta de intenção; manifestação exige documento, carta ou confirmação institucional correspondente. Rascunhos, cancelamentos, classificações pendentes e registros sem comprovação não entram nas metas finais.
+A autenticação identifica quem registrou a classificação. A anuência da coordenação continua sendo uma declaração manual, sem assinatura ou validação automática da FACEPE. Critérios oficiais ainda precisam ser fornecidos.
 
-Referenciar evidência cadastra somente tipo, título, identificação e, quando existente, link HTTPS. Não envia arquivos. A conferência exige referência, identificador, responsável e nota do que foi conferido. A aprovação fica vinculada à versão do registro e da evidência. Alterações exigem nova revisão. Veja [Diário e metas](docs/diario-e-metas.md).
+Evidências continuam sendo metadados e referências HTTPS, sem upload. A aprovação corresponde à versão exata do registro e da evidência. Alterações exigem nova revisão. Veja [Diário e metas](docs/diario-e-metas.md).
 
 ## Banco e migrações
 
-SQLite é a fonte da verdade. As migrações 001 e 002 permanecem byte a byte iguais. A nova 003_diary.sql é aditiva: acrescenta organização à agenda, cria Diário, participantes, evidências, classificações, histórico e a visão de resultados elegíveis. Não cadastra atividades realizadas ou evidências de demonstração.
+SQLite é a fonte da verdade. As migrações 001 a 004 são preservadas nesta etapa. A migração 004_authentication.sql cria app_users, user_mission_permissions, user_sessions, oauth_transactions e auth_events e adiciona autoria às estruturas existentes.
 
-A inicialização e a carga são idempotentes:
+A migração aditiva 007_workspace_coordination.sql cria coordination_accounts e coordination_sessions e estende a auditoria, sem criar participantes. A migração 006_receipt_storage.sql cria volumes, objetos persistentes e eventos de armazenamento. A migração 005_receipts.sql cria expenses, expense_attachments, expense_checklists, expense_history, expense_submissions e receipt_mission_config, sem seeds financeiros. Será aplicada na próxima inicialização autorizada.
+
+Nenhum participante é duplicado. Não há carga de contas Google fictícias. Sem allowlist configurada, app_users permanece vazio. As informações de financiamento são independentes das permissões.
+
+A inicialização é idempotente:
 
 ```powershell
 .\.venv\Scripts\python.exe -m scripts.init_db
 ```
 
-As 20 atividades previstas da etapa anterior continuam preservadas. Datas ou confirmações não são inventadas. As tabelas legadas mission_events e mission_results permanecem intactas. Os antigos contadores sem classificação não são usados como resultados comprovados; os indicadores finais consultam eligible_goal_claims.
-
-Antes da migração operacional da etapa 3, foi criado backup consistente em .tools/backups/etapa2-before-stage3.sqlite3. Não apague o banco ou edite migrações já aplicadas. Novas alterações de esquema devem usar um próximo arquivo versionado.
-
-## Datas e fusos
-
-- Portugal: Europe/Lisbon, 09 a 20/11/2026.
-- Argentina: America/Argentina/Buenos_Aires, 16 a 23/11/2026.
-- Consulta de datas fora do período oficial para planejamento de exemplo.
-
-Hoje usa o fuso da missão. Datas e horários do Diário também pertencem a esse fuso. Horários inválidos ou ambíguos são recusados. A agenda mantém representação UTC para compromissos com horário. O Diário mantém o fato em data e horário locais opcionais, com fuso obtido da missão.
+O backup consistente anterior à etapa 4 está em .tools/backups/etapa3-before-stage4.sqlite3. Todos os dados anteriores foram comparados após a migração e preservados. Não apague o banco nem altere migrações já aplicadas.
 
 ## Estrutura
 
 ```text
 app/
-  main.py, models.py
-  core/              configuração, CSRF, política de testes
-  db/                conexão, migrações 001/002/003 e carga inicial
-  repositories/      missions.py, itinerary.py, diary.py
-  services/          validação, apresentação, fusos e regras de elegibilidade
-  routers/           web.py, api.py, planning.py, diary.py
-  templates/         páginas e componentes reutilizáveis
+  main.py
+  core/              configuração, CSRF, autorização, logs e isolamento de testes
+  db/                conexão, autoria, migrações 001 a 007 e seeds
+  repositories/      missions.py, itinerary.py, diary.py, auth.py, receipts.py
+  services/          regras de missão, agenda, Diário, Google OIDC e captura sintética
+  routers/           web.py, api.py, planning.py, diary.py, auth.py
+  templates/         login, conta, páginas e componentes
   static/            marca oficial, fontes, CSS e JavaScript locais
-data/                SQLite operacional, ignorado pelo Git
-scripts/             inicialização e QA com banco temporário
-tests/              regressão, isolamento, agenda, Diário e metas
-docs/               arquitetura, regras e validação
+scripts/
+  init_db.py
+  manage_access.py   concessões locais explícitas
+  serve_qa.py        concessão temporária, modos local/synthetic/pending
+  qa-auth.cjs        login sintético assinado e revisão responsiva
+tests/
+docs/
+data/                banco operacional fora do Git
 artifacts/           capturas e relatórios locais
 ```
 
-Consulte o inventário de [arquivos da etapa 3](docs/arquivos-etapa3.md).
+Veja [arquivos da etapa 05A](docs/arquivos-etapa05a.md) e [arquitetura](docs/arquitetura.md).
 
-## Rotas do Diário
+## Rotas de acesso
 
-| Rota                                                        | Uso                                        |
-| ----------------------------------------------------------- | ------------------------------------------ |
-| /                                                           | Hoje da missão padrão ou seleção           |
-| /?selecionar=1                                              | Seleção de missão                          |
-| /missoes/{codigo}/planejamento                              | Agenda diária                              |
-| /missoes/{codigo}/diario                                    | Lista e filtros por status                 |
-| /missoes/{codigo}/diario/novo                               | GET do formulário e POST de criação        |
-| /missoes/{codigo}/diario/novo?agenda={id}                   | Preenchimento com compromisso profissional |
-| /missoes/{codigo}/diario/{id}                               | Detalhes                                   |
-| /missoes/{codigo}/diario/{id}/editar                        | GET e POST de edição                       |
-| /missoes/{codigo}/diario/{id}/evidencias/nova               | Referenciar evidência                      |
-| /missoes/{codigo}/diario/{id}/evidencias/{evidencia}/editar | Revisar metadados                          |
-| /missoes/{codigo}/diario/{id}/metas/nova                    | Classificar resultado                      |
-| /missoes/{codigo}/diario/{id}/metas/{classificacao}/editar  | Rever classificação                        |
+| Rota | Uso |
+| --- | --- |
+| /login | Entrada ou configuração pendente |
+| POST /auth/google | Iniciar OIDC com CSRF |
+| /auth/google/callback | Validar retorno, token e vínculo |
+| POST /auth/logout | Revogar sessão e limpar cookies |
+| POST /auth/preferencia | Definir missão padrão |
+| /api/usuario | Identidade mínima e permissões da sessão |
+| / | Hoje da missão principal, consolidado da coordenação ou seleção no modo local |
+| /consolidado | Consulta de agenda/metas das duas missões |
+| /missoes/{codigo} | Hoje |
+| /missoes/{codigo}/planejamento | Agenda |
+| /missoes/{codigo}/diario | Diário |
+| /missoes/{codigo}/comprovantes | Capturas sintéticas do próprio usuário |
+| /missoes/{codigo}/comprovantes/novo | Registro rápido, câmera/arquivo |
 
-Prestação de Contas, Organização e Documentos continuam em desenvolvimento.
+As rotas anteriores permanecem compatíveis e protegidas. Prestação de Contas contém somente a captura sintética quando habilitada. Organização, Documentos e os demais recursos financeiros continuam em desenvolvimento.
 
-## Testes isolados
+## Testes
+
+Após instalar as dependências fixadas:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe -m pip check
 .\.venv\Scripts\python.exe -m compileall -q app scripts tests
 ```
 
-Resultado final: **203 testes aprovados**, com dois avisos de depreciação já conhecidos do TestClient/AnyIO. Foram validados também **68 layouts no navegador**, em 360, 390, 768 e 1280 px.
+Na validação final da etapa 4, **289 testes passaram**, incluindo os 203 cenários anteriores e 86 casos de autenticação. Há dois avisos conhecidos de depreciação do TestClient/AnyIO.
 
-O pytest não carrega .env. Cada fixture recebe uma concessão temporária exclusiva. Um DATABASE_PATH explícito que aponte a banco operacional ou persistente faz os testes falharem antes da inicialização. Não basta chamar um arquivo de teste.sqlite3. A política também protege conexões SQLite diretas, ATTACH e alterações de arquivos do diretório operacional no processo de testes.
+A validação final posterior à instalação manual usou diretamente o ambiente virtual, sem bootstrap auxiliar. Nenhuma dependência adicional foi necessária na etapa 05A.
 
-Ao terminar, somente diretórios temporários com propriedade validada são removidos; conexões são fechadas antes. Em caso de encerramento abrupto, um diretório temporário pode permanecer, sem habilitar limpeza ampla de pastas. Veja [isolamento de testes](docs/isolamento-testes.md).
+A validação final da etapa 05A aprovou **361 testes, sem falhas ou erros e com dois avisos**, em 115,67 segundos. Consulte [validação da etapa 05A](docs/validacao-etapa05a.md). A etapa 05B preserva esses cenários e acrescenta testes de armazenamento persistente; o relatório final fica em [validação da etapa 05B](docs/validacao-etapa05b.md).
 
-## QA no navegador
+Testes e navegador usam somente concessões temporárias. .env não é carregado no pytest. DATABASE_PATH persistente explícito falha antes de migração ou criação de arquivos. Veja [isolamento](docs/isolamento-testes.md).
+
+## QA de navegador
+
+Com as dependências exigidas instaladas, em terminais separados:
 
 ```powershell
-# Terminal 1, banco temporário com identidade exclusiva
-.\.venv\Scripts\python.exe -m scripts.serve_qa --port 8057
-
-# Terminal 2, módulo Playwright já disponível para QA
-node scripts/qa-diary.cjs C:\caminho\node_modules\@playwright\test
-
-# Inicie um novo helper antes de executar a regressão anterior
-node scripts/qa-responsive.cjs C:\caminho\node_modules\@playwright\test
+# Terminal 1
+.\.venv\Scripts\python.exe -m scripts.serve_qa --port 8057 --auth-mode synthetic
+# Terminal 2, Playwright disponível como ferramenta de QA
+node scripts/qa-auth.cjs C:\caminho\node_modules\@playwright\test
 ```
 
-Aguarde o terminal do helper informar Uvicorn running antes de executar o script. Cada script encerra o helper ao terminar; inicie outro helper para a próxima execução.
+O helper usa banco temporário e um provedor sintético que assina tokens de teste. O navegador intercepta a autorização externa; não há conta Google ou tráfego real de login. DEV_NO_AUTH é false nesses fluxos. Nenhum endpoint sintético existe na aplicação normal.
 
-Os scripts leem .tools/qa-current.json e verificam a concessão antes de qualquer escrita. Recusam servidores operacionais, portas 8000/8001/8002 e destinos diferentes do manifesto. Um cabeçalho exclusivo identifica todas as requisições de QA. O servidor operacional recusa clientes assim identificados. O helper encerra de forma controlada no final e limpa seu banco temporário.
+Para revisar configuração ausente, inicie outro helper com --auth-mode pending e execute o mesmo script com --pending. Cada execução encerra seu helper e limpa somente a concessão verificada.
 
-Playwright é ferramenta opcional de QA, sem dependência no runtime. Nesta máquina o módulo está no projeto irmão seccolp. Para outra máquina, instale em diretório de ferramentas, se necessário, e informe o caminho absoluto. O navegador padrão é Microsoft Edge; QA_BROWSER_PATH permite outro executável Chromium. QA_BASE_URL precisa corresponder ao manifesto criado pelo helper.
+Foram validados 36 layouts em 360, 390, 768 e 1280 px: 32 autenticados sintéticos e quatro de configuração pendente, com login/logout sem JavaScript e teclado. Capturas e relatórios históricos estão em artifacts/stage4. As telas novas da captura não foram validadas em navegador nesta rodada.
 
-Capturas da nova etapa em artifacts/stage3/; regressão em artifacts/stage2/. Capturas cujo nome começa com qa usam dados sintéticos identificados, exclusivamente no banco temporário. Veja [validação da etapa 3](docs/validacao-etapa3.md).
+O guard recusa portas 8000/8001/8002/8003, exige manifesto, URL exata e identidade da concessão. O servidor normal recusa requisições identificadas como QA. Playwright não é dependência de runtime.
 
-## Documentação e limites
+## Limites e próximos passos
 
-A marca oficial e sua origem estão em [identidade SECCO](docs/identidade-secco.md). Consulte [arquitetura](docs/arquitetura.md), [Diário e metas](docs/diario-e-metas.md) e [registro rápido futuro](docs/ux-registro-rapido.md).
+1. Conferir o relatório da etapa 05A e suas limitações antes de qualquer uso.
+2. Configurar manualmente o cliente Web e callback com o responsável, preservando o domínio e os cinco perfis confirmados.
+3. Após autorização das migrações pendentes e provisionamento explícito, fazer teste manual dos perfis, logout e bloqueio, encerrando antes as versões antigas sem identidade.
+4. Fornecer critérios oficiais de qualificação, evoluir perfis de coordenação e integração Shared Drive.
+5. Validar os documentos FACEPE, processos e rubricas, depois planejar armazenamento durável no Shared Drive antes de qualquer despesa real.
 
-Não há cache de dados, fila offline, upload ou verificação automática do conteúdo dos documentos. O manifesto prepara a PWA sem prometer instalação completa. Testes em viewports não substituem validação física Android/iOS. Sem autenticação, as declarações de responsáveis são registros manuais e não trilha de auditoria com identidade certificada.
+Não há deploy, commit, push, criação de credenciais ou alteração do Workspace. O servidor segue local, sem acesso de outros aparelhos. Viewports não substituem validação física Android/iOS. Não há fila offline; fechar ou recarregar um formulário não salvo ainda pode perder os campos.
 
-Próximas etapas: fornecer os critérios aprovados para validação da coordenação, autenticação real com autorização por missão, evidências no Shared Drive e, depois, módulo financeiro com checklist próprio. Não houve deploy, commit, push ou integração de contas externas.
+A marca oficial permanece preservada. Consulte [identidade SECCO](docs/identidade-secco.md), [autenticação](docs/autenticacao.md), [arquitetura](docs/arquitetura.md) e [experiência do registro rápido](docs/ux-registro-rapido.md).
