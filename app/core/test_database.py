@@ -5,6 +5,7 @@ from pathlib import Path
 import secrets
 import shutil
 import sqlite3
+import stat
 import sys
 import tempfile
 from threading import RLock
@@ -86,9 +87,28 @@ def enforce_database_policy(value):
         raise UnsafeTestDatabase("Ative o isolamento temporário antes de abrir SQLite em testes.")
 
 
-def _protect_filesystem(value):
+def _event_path(value,dir_fd=None):
+    """Resolver a mesma base de *at()/dir_fd; não confundir nome relativo com cwd.
+
+    Linux fornece a identidade do descritor em /proc/self/fd. Se não for possível
+    provar a base, falhar fechado. Caminhos absolutos independem de dir_fd.
+    """
+    candidate=Path(os.fsdecode(value))
+    if candidate.is_absolute() or dir_fd in (None,-1): return candidate.absolute()
+    if type(dir_fd) is not int or dir_fd<0:
+        raise UnsafeTestDatabase('Descritor de diretório inválido para operação de teste.')
+    try:
+        if not stat.S_ISDIR(os.fstat(dir_fd).st_mode): raise ValueError()
+        base=Path(os.readlink(f'/proc/self/fd/{dir_fd}'))
+        if not base.is_absolute() or str(base).endswith(' (deleted)'): raise ValueError()
+        return (base/candidate).absolute()
+    except (OSError,ValueError,TypeError):
+        raise UnsafeTestDatabase('Não foi possível comprovar a base dir_fd da operação de teste.') from None
+
+
+def _protect_filesystem(value,dir_fd=None):
     if not isinstance(value,(str,bytes,os.PathLike)): return
-    candidate=Path(os.fsdecode(value)).absolute()
+    candidate=_event_path(value,dir_fd)
     resolved=candidate.resolve()
     protected=candidate.is_relative_to(_ROOT/"data") or resolved.is_relative_to((_ROOT/"data").resolve()) or (_ROOT/"data").resolve().is_relative_to(resolved)
     if protected:
@@ -106,9 +126,12 @@ def _audit(event,args):
         if (isinstance(mode,str) and any(c in mode for c in "wax+")) or (isinstance(flags,int) and flags & (os.O_WRONLY|os.O_RDWR|os.O_CREAT|os.O_TRUNC)):
             _protect_filesystem(args[0])
     elif _active and event in ("os.remove","os.rmdir","shutil.rmtree"):
-        _protect_filesystem(args[0])
-    elif _active and event in ("os.rename","os.link","os.symlink"):
-        for value in args[:2]: _protect_filesystem(value)
+        _protect_filesystem(args[0],args[1] if len(args)>1 else None)
+    elif _active and event in ("os.rename","os.link"):
+        for index,value in enumerate(args[:2]):
+            _protect_filesystem(value,args[index+2] if len(args)>index+2 else None)
+    elif _active and event=="os.symlink":
+        for value in args[:2]: _protect_filesystem(value,args[2] if len(args)>2 else None)
     elif event=="sqlite3.connect":
         enforce_database_policy(args[0])
     elif _active and event=="sqlite3.enable_load_extension" and args[1]:

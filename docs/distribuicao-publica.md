@@ -1,4 +1,4 @@
-# Distribuição pública — estado 12 de 14
+# Distribuição pública — estado 13 de 14
 
 Esta cópia usa dados de exemplo e está separada da aplicação operacional. Países, eventos do programa e ativos de marca foram mantidos. Participantes, contas e identificadores de serviços são fictícios; a observação operacional sobre extensão de viagem foi retirada do seed e da documentação. Nenhuma licença de código aberto foi adicionada.
 
@@ -16,17 +16,23 @@ A migração 002 pública substitui nomes por fictícios e tem checksum `6bcc159
 
 Execute `python -m pytest -q -p no:cacheprovider -rfEs` na raiz do estado, com as dependências instaladas. Os testes usam bancos temporários e identidades/HTTP simulados.
 
-Execução desta distribuição, estado 12: **706 aprovados, 0 ignorados, 0 falhas e 0 erros**, saída 0. As contagens incluem a suíte integral coletada neste estado; testes ignorados não contam como aprovados. Quando houve sanitização textual posterior da agenda, seus testes de renderização e agenda foram executados novamente, sem alterar a lógica Python.
+Execução desta distribuição, estado 13: **715 aprovados, 43 ignorados, 0 falhas e 0 erros**, saída 0. As contagens incluem a suíte integral coletada neste estado; testes ignorados não contam como aprovados. Quando houve sanitização textual posterior da agenda, seus testes de renderização e agenda foram executados novamente, sem alterar a lógica Python.
 
 ### Testes ignorados
 
-Não há módulos do executor portátil neste estado.
+Os testes de pacote/POSIX/renovação dependem de mapas, planos ou ZIPs operacionais ausentes em `artifacts/`. O motivo explícito é `requer artefatos operacionais privados: ...`. A presença desses skips não valida a cadeia histórica de pacotes.
+
+| Módulo coletado | Ignorados |
+|---|---:|
+| `test_drive_cloud_shell_package.py` | 19 |
+| `test_drive_cloud_shell_posix.py` | 7 |
+| `test_drive_cloud_shell_renewal.py` | 17 |
 
 ## Proveniência e etapas
 
 Os estados 01–03 reutilizam snapshots preservados. Os estados 04–09 recuperam versões de arquivos registradas nas sessões de desenvolvimento, com a mesma sanitização pública e recomposição de versões completas. Os estados seguintes agrupam o código existente por funcionalidade e trazem as dependências necessárias com seus consumidores. Estes são estados preparados agora para publicação, sem datas retroativas ou alegação de reproduzir cada instante operacional.
 
-Funcionalidade desta etapa: `feat(drive): implement supervised Cloud Shell validation`. Cada commit futuro será criado somente após autorização, com a data real da criação e autoria confirmada.
+Funcionalidade desta etapa: `feat(drive): package portable Cloud Shell executor`. Cada commit futuro será criado somente após autorização, com a data real da criação e autoria confirmada.
 
 ## Validação operacional e validação pública
 
@@ -35,4 +41,25 @@ Os documentos históricos registram testes e decisões operacionais de cada etap
 ## Artefatos ausentes
 
 Os artefatos operacionais, bancos, `.env`, credenciais, logs, aprovações, checkpoints, journals, backups e ZIPs de evidência ficam fora do repositório. Logs locais podem ser gerados com `python -m pytest`. Capturas de QA exigem Node/Playwright e os scripts de QA presentes neste estado; consulte o README. Não inclua os artefatos gerados no Git.
+
+## Gerar entradas fictícias do pacote
+
+O roteiro abaixo é offline, não usa credenciais e não autoriza execução remota. Depois execute `python -m scripts.build_drive_cloud_shell_package`. Ele gera um pacote v3 fictício; não recria os ZIPs operacionais anteriores nem comprova sua cadeia histórica.
+
+```python
+import json, os, re, subprocess, sys
+from pathlib import Path
+
+folders = json.loads(re.search(r'^GOOGLE_DRIVE_FOLDERS_JSON=(.*)$',
+                               Path('.env.example').read_text(encoding='utf-8'), re.M).group(1))
+Path('artifacts/stage07b/mapping').mkdir(parents=True, exist_ok=True)
+Path('artifacts/stage07c').mkdir(parents=True, exist_ok=True)
+Path('artifacts/stage07b/mapping/folders.json').write_text(json.dumps(folders, indent=2), encoding='utf-8')
+plan = subprocess.run([sys.executable, '-m', 'scripts.drive_probe',
+                       '--mapping', 'artifacts/stage07b/mapping/folders.json',
+                       '--archive', 'artifacts/stage07c/probe-prepared.zip'],
+                      check=True, capture_output=True, text=True, encoding='utf-8',
+                      env={**os.environ, 'PYTHONIOENCODING': 'utf-8'}).stdout
+Path('artifacts/stage07c/offline-plan.json').write_text(plan, encoding='utf-8')
+```
 
