@@ -65,6 +65,6 @@ A referência e o identificador são únicos por missão. Documentos formais nã
 
 ## Limites de confiança
 
-Não há autenticação real. Responsável pela validação e Quem conferiu são declarações manuais. Não demonstram identidade autenticada, assinatura, anuência formal automatizada ou validação da FACEPE. Mantenha pendente quando não houver decisão efetivamente recebida ou comprovação disponível.
+A etapa 4 acrescenta a estrutura de autenticação Google e identifica quem registra as informações quando há sessão verificada. O login externo ainda depende de configuração e validação real. Responsável pela validação e Quem conferiu continuam sendo declarações manuais de decisões recebidas. Não demonstram identidade autenticada, assinatura, anuência formal automatizada ou validação da FACEPE. Mantenha pendente quando não houver decisão efetivamente recebida ou comprovação disponível.
 
 A aplicação permanece exclusiva ao desenvolvimento local. Nenhum dado financeiro foi implementado. O fluxo depende do servidor; fechar um formulário ainda não salvo pode perder os campos. Não há sincronização offline.

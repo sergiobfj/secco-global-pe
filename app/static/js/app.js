@@ -200,7 +200,7 @@ window.addEventListener("popstate", () => {
     loadAgenda(location.href, false);
 });
 revealSelectedDay();
-// Não há upload, cache de dados, service worker ou sincronização nesta etapa.
+// A agenda não mantém cache de dados nem sincronização offline. A captura sintética usa receipts.js.
 
 // Campos obrigatórios acompanham o status, inclusive ao voltar de Realizada para Rascunho.
 document.addEventListener("change", (event) => {

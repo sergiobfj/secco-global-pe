@@ -1,0 +1,85 @@
+{
+  "revision": 1,
+  "source": "Briefing do projeto. Pendente de validação documental FACEPE.",
+  "types": {
+    "passagem_aerea": {
+      "label": "Passagem aérea",
+      "items": [
+        "Confirmação da compra",
+        "Cartões de embarque de todos os trechos",
+        "Identificação do passageiro"
+      ]
+    },
+    "diaria": {
+      "label": "Diária",
+      "items": [
+        "Recibo de diárias conforme modelo exigido",
+        "Participação nas atividades pertinentes"
+      ],
+      "notice": "A regra de diária não exige notas individuais de alimentação ou hospedagem. Confirme o modelo aplicável."
+    },
+    "inscricao_evento": {
+      "label": "Inscrição em evento",
+      "items": [
+        "Comprovante de pagamento",
+        "Certificado ou documento de participação"
+      ],
+      "conditional": [
+        "Comprovante de câmbio, quando exigido"
+      ]
+    },
+    "aplicativo": {
+      "label": "Transporte por aplicativo",
+      "items": [
+        "Comprovante da corrida"
+      ],
+      "fields": {
+        "trajeto": "Trajeto",
+        "horario": "Horário",
+        "placa": "Placa",
+        "motorista": "Motorista",
+        "passageiro": "Passageiro"
+      },
+      "notice": "Confira também data e valor da corrida nos campos principais."
+    },
+    "taxi": {
+      "label": "Táxi",
+      "items": [
+        "Documentação específica conferida"
+      ],
+      "notice": "O uso de táxi pode gerar dificuldade de comprovação. As exigências documentais específicas precisam de confirmação. O cadastro não declara a despesa inválida."
+    },
+    "intermunicipal": {
+      "label": "Transporte intermunicipal",
+      "items": [
+        "Bilhete",
+        "Comprovante de pagamento"
+      ]
+    },
+    "urbano": {
+      "label": "Transporte urbano",
+      "items": [],
+      "notice": "Regras específicas pendentes de confirmação com a FACEPE."
+    },
+    "seguro_saude": {
+      "label": "Seguro saúde",
+      "items": [
+        "Apólice",
+        "Demais exigências da regra aplicável conferidas"
+      ],
+      "fields": {
+        "empresa": "Empresa seguradora",
+        "viajante": "Viajante segurado"
+      }
+    },
+    "outro": {
+      "label": "Outro tipo",
+      "items": [
+        "Documentação da classificação informada"
+      ],
+      "fields": {
+        "classificacao": "Classificação e referência da regra aplicável"
+      }
+    }
+  }
+}

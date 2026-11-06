@@ -31,7 +31,7 @@ Se o marcador ou caminho não corresponder, a limpeza falha e conserva os arquiv
 
 Use python -m scripts.serve_qa --port 8057. O helper ativa a mesma política antes de importar a aplicação, cria concessão, inicia o startup normal e publica sua identificação em .tools/qa-current.json.
 
-scripts/qa-guard.cjs exige manifesto, loopback, porta diferente de 8000/8001/8002, URL exatamente correspondente e resposta de identidade com nonce e versão da política. Cada contexto do navegador recebe X-SECCO-QA-Instance. Um servidor operacional com o código novo recusa esse cabeçalho. A recusa explícita de destino 8001 é testada antes de qualquer navegação para esse endereço.
+scripts/qa-guard.cjs exige manifesto, loopback, porta diferente de 8000/8001/8002/8003, URL exatamente correspondente e resposta de identidade com nonce e versão da política. Cada contexto do navegador recebe X-SECCO-QA-Instance. Um servidor operacional com o código novo recusa esse cabeçalho. A recusa explícita de destino 8001 é testada antes de qualquer navegação para esse endereço.
 
 O encerramento de QA exige CSRF e é solicitado pelo script mesmo se uma asserção falhar. O helper fecha o servidor, remove apenas seu próprio manifesto e limpa a concessão. Os endpoints de identidade e encerramento não existem na aplicação operacional.
 
@@ -42,3 +42,19 @@ Há testes de caminho operacional, URI, caminho persistente disfarçado de teste
 Todos os casos de Diário, evidências, metas e agenda escrevem somente em concessões temporárias. As capturas com conteúdo sintético têm prefixo qa e são descritas como QA no relatório.
 
 A verificação operacional da entrega é separada: backup consistente, migração aditiva autorizada e consultas de integridade, sem inserir dados de teste.
+
+
+## Autenticação, etapa 4
+
+O helper aceita --auth-mode synthetic para contas estritamente sintéticas em concessão temporária. Nesse modo, DEV_NO_AUTH é false e o fluxo OIDC valida tokens RSA assinados por chave de teste, com state, nonce e PKCE. O navegador intercepta a URL de autorização e não acessa contas Google.
+
+A rota /__qa__/authorize é criada somente nesse helper, exige a identificação da concessão e não existe no servidor operacional. O modo --auth-mode pending valida o fechamento do acesso quando faltam credenciais. O modo local continua disponível para regressão dos componentes anteriores, sem ser usado como prova de autorização.
+
+O guard aguarda de forma limitada o manifesto e a prontidão do helper, sem relaxar URL, porta, nonce ou identidade da concessão. Os testes mantêm seus próprios bancos temporários. A migração operacional é uma operação separada, com backup consistente e comparação de todos os dados antigos, sem registros sintéticos.
+
+
+## Anexos sintéticos, etapa 05A
+
+TemporaryReceiptStorage verifica a concessão ativa do SQLite antes de criar seu diretório quando testing_enabled está ativo. Cada fixture mantém anexos em subpasta temporária da própria concessão. A aplicação fecha o armazenamento no teardown, antes de a fixture limpar o banco. Não existe caminho de armazenamento persistente configurável ou uso de assets para anexos. Os testes usam somente PNG/PDF e metadados sintéticos e exercitam recusa de caminho operacional, quota, checksum, falha e rollback.
+
+A execução integral desta rodada teve seu relatório interrompido por um identificador de teste excessivo. Não houve remoção ampla de temporários após a interrupção. Consulte validacao-etapa05a.md para os resultados e a correção pontual.

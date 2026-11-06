@@ -16,7 +16,9 @@ from app.core.test_database import testing_enabled
 from app.db.migrate import migrate
 from app.db.seed import seed
 from app.repositories.missions import MissionRepository
-from app.routers import api, web, planning, diary, auth
+from app.routers import api, web, planning, diary, auth, receipts
+from app.repositories.receipts import ReceiptRepository
+from app.services.receipt_storage import TemporaryReceiptStorage
 from app.repositories.itinerary import ItineraryRepository
 from app.repositories.diary import DiaryRepository
 
@@ -37,7 +39,16 @@ def create_app(settings: Settings | None = None):
             application.state.itinerary.import_legacy(mission)
         if not configuration.dev_no_auth and configuration.auth_ready:
             application.state.auth.provision()
-        yield
+        storage = None
+        if configuration.receipts_synthetic_enabled:
+            storage = TemporaryReceiptStorage(configuration.database_path)
+            application.state.receipt_storage = storage
+            application.state.receipts = ReceiptRepository(configuration.database_path, storage)
+        try:
+            yield
+        finally:
+            if storage:
+                storage.close()
 
     application = FastAPI(title="SECCO Global PE", lifespan=lifespan,
                           docs_url=None, redoc_url=None, openapi_url=None)
@@ -89,7 +100,7 @@ def create_app(settings: Settings | None = None):
         else:
             response = await call_next(request)
         response.headers["Content-Security-Policy"] = (
-            "default-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; "
+            "default-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; "
             "script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; "
             "frame-ancestors 'none'; form-action 'self' https://accounts.google.com; worker-src 'self'; manifest-src 'self'"
         )
@@ -118,6 +129,7 @@ def create_app(settings: Settings | None = None):
 
     application.include_router(auth.router)
     application.mount("/static", StaticFiles(directory=ROOT / "app" / "static"), name="static")
+    application.include_router(receipts.router)
     application.include_router(diary.router)
     application.include_router(planning.router)
     application.include_router(web.router)

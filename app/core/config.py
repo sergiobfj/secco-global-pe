@@ -26,6 +26,7 @@ class Settings:
     session_idle_seconds: int = 1800
     session_absolute_seconds: int = 43200
     session_rotation_seconds: int = 900
+    receipts_synthetic_enabled: bool = False
 
     @classmethod
     def from_env(cls):
@@ -48,6 +49,7 @@ class Settings:
             raise RuntimeError("Os tempos de sessão devem ser números inteiros.") from None
         return cls(
             app_env=os.getenv("APP_ENV", "").strip().lower(),
+            receipts_synthetic_enabled=os.getenv("RECEIPTS_SYNTHETIC_ENABLED", "false").strip().lower() == "true",
             dev_no_auth=os.getenv("DEV_NO_AUTH", "false").strip().lower() == "true",
             database_path=raw_path if raw_path.is_absolute() else ROOT / raw_path,
             google_client_id=os.getenv("GOOGLE_CLIENT_ID", "").strip(),
@@ -106,5 +108,7 @@ class Settings:
         if not (60 <= self.session_idle_seconds <= self.session_absolute_seconds <= 2592000
                 and 60 <= self.session_rotation_seconds <= self.session_idle_seconds):
             raise RuntimeError("Confira os limites de expiração e renovação da sessão.")
+        if self.receipts_synthetic_enabled and self.app_env != "development":
+            raise RuntimeError("Captura sintética de comprovantes é permitida somente em desenvolvimento.")
         if self.app_env == "production" and not self.auth_ready:
             raise RuntimeError("Esta versão não pode executar em produção sem configuração OIDC completa e HTTPS.")

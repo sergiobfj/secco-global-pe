@@ -26,6 +26,8 @@ def render(request, template, **context):
     auth_available = hasattr(request.app.state,"auth")
     response = templates.TemplateResponse(request=request, name=template, context={
         "csrf_token": token, "features_diary": True,
+        "features_receipts": True,
+        "receipts_enabled": request.app.state.settings.receipts_synthetic_enabled,
         "features_auth": True, "current_user": user,
         "dev_access": request.app.state.settings.dev_no_auth,
         "can_edit": can_edit(request,mission.id) if mission else request.app.state.settings.dev_no_auth,
@@ -72,6 +74,11 @@ def dashboard(request: Request, codigo: str):
 def section_page(request: Request, section: str, codigo: str | None = None):
     if section not in SECTIONS:
         raise HTTPException(404, "Página não encontrada")
+    if section == "prestacao-de-contas" and request.app.state.settings.receipts_synthetic_enabled:
+        user = getattr(request.state,"user",None)
+        preferred = codigo or (user["default_mission_code"] if user else None)
+        if preferred:
+            return RedirectResponse(f"/missoes/{preferred}/comprovantes",status_code=303)
     if section == "diario":
         if codigo:
             from app.routers.diary import diary
