@@ -10,7 +10,8 @@ from app.core.config import ROOT, Settings
 from app.db.migrate import migrate
 from app.db.seed import seed
 from app.repositories.missions import MissionRepository
-from app.routers import api, web
+from app.routers import api, web, planning
+from app.repositories.itinerary import ItineraryRepository
 
 
 def create_app(settings: Settings | None = None):
@@ -22,6 +23,9 @@ def create_app(settings: Settings | None = None):
         migrate(configuration.database_path)
         seed(configuration.database_path)
         application.state.repository = MissionRepository(configuration.database_path)
+        application.state.itinerary = ItineraryRepository(configuration.database_path)
+        for mission in application.state.repository.list():
+            application.state.itinerary.import_legacy(mission)
         yield
 
     application = FastAPI(title="SECCO Global PE", lifespan=lifespan,
@@ -45,7 +49,7 @@ def create_app(settings: Settings | None = None):
             "frame-ancestors 'none'; form-action 'self'; worker-src 'self'; manifest-src 'self'"
         )
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Referrer-Policy"] = "same-origin"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
         if not request.url.path.startswith("/static/"):
             response.headers["Cache-Control"] = "no-store"
@@ -60,6 +64,7 @@ def create_app(settings: Settings | None = None):
         return response
 
     application.mount("/static", StaticFiles(directory=ROOT / "app" / "static"), name="static")
+    application.include_router(planning.router)
     application.include_router(web.router)
     application.include_router(api.router)
 

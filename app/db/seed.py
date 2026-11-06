@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from app.db.connection import connect
+from app.db.seed_itinerary import seed_itinerary
 
 MISSIONS = (
     {
@@ -12,7 +13,7 @@ MISSIONS = (
         "cidades": ["Lisboa", "Aveiro", "Porto"],
         "atividades": ["Bootcamp na NOVA SBE", "Web Summit", "Aveiro Tech Week", "Portus Park", "UPTEC"],
         "observacoes": None,
-        "participantes": [("Hugo Mendes", True), ("Renato", False)],
+        "participantes": [("Hugo Mendes", True), ("Alan Renato", False)],
         "metas": [("reuniao_qualificada", 10), ("loi", 3)],
     },
     {
@@ -51,3 +52,5 @@ def seed(database_path: Path):
                     INSERT INTO mission_goals(mission_id,tipo_meta,quantidade_alvo)
                     VALUES (?,?,?) ON CONFLICT(mission_id,tipo_meta) DO NOTHING
                 """, (mission_id, kind, target))
+
+    seed_itinerary(database_path)

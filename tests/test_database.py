@@ -19,13 +19,13 @@ def counts(location):
 def test_initial_data(database, repository):
     assert counts(database) == {
         "missions": 2, "participants": 4, "mission_participants": 4, "mission_goals": 4,
-        "mission_events": 0, "mission_results": 0, "mission_tasks": 0, "schema_migrations": 1,
+        "mission_events": 0, "mission_results": 0, "mission_tasks": 0, "schema_migrations": 2,
     }
     portugal, argentina = repository.list()
     assert portugal.codigo == "portugal" and portugal.edital == "26/2026"
     assert portugal.timezone == "Europe/Lisbon"
     assert portugal.cidades == ["Lisboa","Aveiro","Porto"]
-    assert [p.nome for p in portugal.participantes] == ["Hugo Mendes","Renato"]
+    assert [p.nome for p in portugal.participantes] == ["Hugo Mendes","Alan Renato"]
     assert [p.nome for p in argentina.participantes] == ["Tiago Prado","Bruno de Castro"]
     assert [p.nome for p in portugal.participantes if p.financiado_pela_subvencao] == ["Hugo Mendes"]
     assert [p.nome for p in argentina.participantes if p.financiado_pela_subvencao] == ["Bruno de Castro"]
@@ -48,7 +48,7 @@ def test_repeat_initialization_preserves_records(database):
 
 def test_seed_preserves_user_changes(database, repository):
     with connect(database) as db:
-        db.execute("UPDATE participants SET email='teste@example.org' WHERE nome='Renato'")
+        db.execute("UPDATE participants SET email='teste@example.org' WHERE nome='Alan Renato'")
         db.execute("UPDATE mission_goals SET quantidade_alvo=12 WHERE mission_id=1 AND tipo_meta='reuniao_qualificada'")
     seed(database)
     assert repository.get("portugal").participantes[1].email == "teste@example.org"
@@ -106,15 +106,15 @@ def test_failed_migration_is_atomic(database, tmp_path, monkeypatch):
     import app.db.migrate as module
     folder = tmp_path / "migrations"
     folder.mkdir()
-    initial = module.MIGRATIONS / "001_foundation.sql"
-    (folder / initial.name).write_text(initial.read_text(encoding="utf-8"),encoding="utf-8")
-    (folder / "002_test.sql").write_text("CREATE TABLE temporary_test(id INTEGER); INVALID SQL;",encoding="utf-8")
+    for initial in module.MIGRATIONS.glob("*.sql"):
+        (folder / initial.name).write_text(initial.read_text(encoding="utf-8"),encoding="utf-8")
+    (folder / "999_test.sql").write_text("CREATE TABLE temporary_test(id INTEGER); INVALID SQL;",encoding="utf-8")
     monkeypatch.setattr(module, "MIGRATIONS", folder)
     with pytest.raises(sqlite3.OperationalError):
         migrate(database)
     with connect(database) as db:
         assert db.execute("SELECT name FROM sqlite_master WHERE name='temporary_test'").fetchone() is None
-        assert db.execute("SELECT COUNT(*) FROM schema_migrations").fetchone()[0] == 1
+        assert db.execute("SELECT COUNT(*) FROM schema_migrations").fetchone()[0] == 2
     assert len(MissionRepository(database).list()) == 2
 
 

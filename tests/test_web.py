@@ -61,7 +61,10 @@ def test_placeholder_pages(client,section):
     for prefix in ("/secoes/","/missoes/portugal/secoes/","/missoes/argentina/secoes/"):
         response = client.get(prefix+section)
         assert response.status_code == 200
-        assert "Funcionalidade em desenvolvimento" in response.text
+        if section == "planejamento":
+            assert ("Planejamento" if prefix!="/secoes/" else "Acessar missão") in response.text
+        else:
+            assert "Funcionalidade em desenvolvimento" in response.text
 
 
 @pytest.mark.parametrize("url",["/missoes/nao-existe","/nao-existe","/secoes/invalida","/missoes/nao-existe/secoes/diario"])
@@ -112,6 +115,8 @@ def test_all_navigation_and_assets_resolve(client):
         parser = LinkParser()
         parser.feed(client.get(url).text)
         for link in parser.links:
+            if link.startswith("https://seccolab.com.br/"):
+                continue
             assert client.get(link).status_code == 200, link
 
 

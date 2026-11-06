@@ -49,3 +49,27 @@ def dashboard_data(repository, mission, now=None):
         "next_event": upcoming,
         "tasks": repository.tasks(mission.id),
     }
+
+def operational_dashboard(repository, itinerary, mission, now=None):
+    """Visão Hoje: programação primeiro, sem promover previsões a confirmações."""
+    current = now or datetime.now(timezone.utc)
+    context = dashboard_data(repository,mission,current)
+    itinerary.import_legacy(mission)
+    items = itinerary.list(mission.id)
+    today = context["today"]
+    from app.services.itinerary import WEEKDAYS
+    def upcoming(item):
+        if item["status"]!="confirmado" or not item["data"] or item["data"]<today.isoformat():
+            return False
+        if not item["inicio_utc"]:
+            return True
+        start = datetime.fromisoformat(item["inicio_utc"].replace("Z","+00:00"))
+        end = datetime.fromisoformat(item["fim_utc"].replace("Z","+00:00")) if item["fim_utc"] else None
+        return start>=current or bool(end and end>=current)
+    context.update(
+        weekday=WEEKDAYS[today.weekday()],
+        today_events=[item for item in items if item["data"]==today.isoformat()],
+        next_event=next((item for item in items if upcoming(item)),None),
+        undated_count=sum(item["data"] is None and item["status"]!="cancelado" for item in items),
+    )
+    return context

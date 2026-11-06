@@ -11,7 +11,7 @@
   "theme_color": "#1A413B",
   "icons": [
     {
-      "src": "/static/brand/secco-symbol-forest.svg",
+      "src": "/static/icons/app.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

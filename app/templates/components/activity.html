@@ -1,0 +1,19 @@
+{% macro activity(item, mission, show_date=false) %}
+<article class="activity-item status-{{ item.status }}">
+  <a class="activity-main {{ 'untimed' if not item.horario_inicio else '' }}" href="/missoes/{{ mission.codigo }}/atividades/{{ item.id }}">
+    <div class="activity-time">
+      {% if show_date %}<span>{{ item.data_label }}</span>{% endif %}
+      <strong>{{ item.horario_inicio or 'Sem horário' }}</strong>
+      {% if item.horario_fim %}<span>até {{ item.horario_fim }}</span>{% elif not item.data %}<span>A agendar</span>{% endif %}
+    </div>
+    <div class="activity-content">
+      <div class="activity-tags"><span class="category category-{{ item.categoria }}">{{ item.categoria_label }}</span><span class="status status-{{ item.status }}">{{ item.status_label }}</span></div>
+      <h3>{{ item.titulo }}</h3>
+      {% if item.local %}<p>{{ item.local }}</p>{% endif %}
+      {% if item.endereco %}<p class="activity-address">{{ item.endereco }}</p>{% endif %}
+      <span class="activity-detail-link">Ver detalhes <span aria-hidden="true">↗</span></span>
+    </div>
+  </a>
+  {% if item.maps_url and item.status!='cancelado' %}<a class="maps-link" href="{{ item.maps_url }}" target="_blank" rel="noopener noreferrer">Como chegar <span aria-hidden="true">↗</span></a>{% endif %}
+</article>
+{% endmacro %}
