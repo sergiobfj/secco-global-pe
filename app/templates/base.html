@@ -57,7 +57,7 @@
 <div class="workspace">
     <header class="topbar">
         <a href="/" class="topbar-title"><img class="header-logo" src="/static/brand/secco-logo-horizontal-forest.svg" alt="SECCO" width="1640" height="289"><span class="product-name">Global PE</span><span class="topbar-divider">/</span>
-<span>{{ mission.pais if mission else 'Visão geral' }}</span>
+<span>{{ mission.pais if mission else ('Visão consolidada' if current_user and current_user.is_coordinator else 'Visão geral') }}</span>
 </a>
         <div class="topbar-right">
 {% if mission %}<details class="mission-switch">
@@ -70,12 +70,12 @@
 </details>
 {% else %}<span class="topbar-program">Programa GLOBAL.PE <span>FACEPE</span>
 </span>
-{% endif %}{% if current_user %}<details class="account-menu"><summary aria-label="Conta de {{ current_user.nome }}"><span class="account-short-name">{{ current_user.nome.split()[0] }}</span><span class="account-initials">{{ current_user.nome.split()[0][0] }}{{ current_user.nome.split()[-1][0] }}</span></summary><div class="account-panel"><strong>{{ current_user.nome }}</strong><p>Missão padrão: {{ 'Portugal' if current_user.default_mission_code=='portugal' else 'Argentina' }}</p>{% if mission and mission.codigo!=current_user.default_mission_code %}<form method="post" action="/auth/preferencia"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="missao" value="{{ mission.codigo }}"><button type="submit">Usar {{ mission.pais }} ao entrar</button></form>{% endif %}<form method="post" action="/auth/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Sair do aplicativo</button></form></div></details>{% else %}<span class="secco-avatar"><img src="/static/brand/secco-symbol-forest.svg" alt="Símbolo SECCO" width="24" height="29"></span>{% endif %}
+{% endif %}{% if current_user %}<details class="account-menu"><summary aria-label="Conta de {{ current_user.nome }}"><span class="account-short-name">{{ current_user.nome.split()[0] }}</span><span class="account-initials">{{ current_user.nome.split()[0][0] }}{{ current_user.nome.split()[-1][0] if current_user.nome.split()|length>1 else '' }}</span></summary><div class="account-panel"><strong>{{ current_user.nome }}</strong><p>{% if current_user.is_coordinator %}Coordenação SECCO · Consulta das duas missões{% else %}Missão {{ 'principal' if current_user.primary_locked else 'padrão' }}: {{ 'Portugal' if current_user.default_mission_code=='portugal' else 'Argentina' }}{% endif %}</p>{% if mission and not current_user.primary_locked and mission.codigo!=current_user.default_mission_code %}<form method="post" action="/auth/preferencia"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="missao" value="{{ mission.codigo }}"><button type="submit">Usar {{ mission.pais }} ao entrar</button></form>{% endif %}<form method="post" action="/auth/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Sair do aplicativo</button></form></div></details>{% else %}<span class="secco-avatar"><img src="/static/brand/secco-symbol-forest.svg" alt="Símbolo SECCO" width="24" height="29"></span>{% endif %}
 </div>
     </header>
     {% if features_auth and dev_access %}<div class="development-note">Acesso local sem login. A autoria não está autenticada.</div>{% endif %}
     <main id="conteudo" tabindex="-1">
-    {% if current_user and mission and not can_edit %}<div class="readonly-notice"><strong>Missão em modo de consulta</strong>Você pode acompanhar esta missão. A edição exige permissão explícita.</div>{% endif %}
+    {% if current_user and mission and not can_edit %}<div class="readonly-notice"><strong>Missão em modo de consulta</strong>{% if current_user.is_coordinator %}Perfil de coordenação com acesso de leitura. Edição e comprovantes privados não estão autorizados.{% else %}Você pode acompanhar esta missão. A edição exige permissão explícita.{% endif %}</div>{% endif %}
 {% block content %}
 {% endblock %}</main>
     <footer class="page-footer">

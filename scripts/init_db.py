@@ -8,7 +8,4 @@ if __name__ == "__main__":
     settings.validate()
     migrate(settings.database_path)
     seed(settings.database_path)
-    if not settings.dev_no_auth and settings.auth_ready:
-        from app.repositories.auth import AuthRepository
-        AuthRepository(settings).provision()
     print(f"Banco inicializado: {settings.database_path}")

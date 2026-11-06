@@ -38,7 +38,7 @@ def create_app(settings: Settings | None = None):
         application.state.diary = DiaryRepository(configuration.database_path)
         for mission in application.state.repository.list():
             application.state.itinerary.import_legacy(mission)
-        if not configuration.dev_no_auth and configuration.auth_ready:
+        if not configuration.dev_no_auth and configuration.auth_ready and testing_enabled():
             application.state.auth.provision()
         storage = None
         if configuration.receipts_synthetic_enabled:

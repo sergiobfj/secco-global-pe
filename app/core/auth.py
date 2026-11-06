@@ -7,7 +7,7 @@ LOGIN_COOKIE = "secco_oidc"
 
 def actor_id(request):
     user = getattr(request.state,"user",None)
-    return user["id"] if user else None
+    return user["id"] if user and not user.get("is_coordinator") else None
 
 
 def can_edit(request, mission_id):

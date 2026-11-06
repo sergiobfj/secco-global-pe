@@ -9,6 +9,7 @@ from starlette.concurrency import run_in_threadpool
 from app.core.auth import LOGIN_COOKIE, SESSION_COOKIE, clear_session_cookie, set_session_cookie
 from app.core.forms import COOKIE, read_form
 from app.repositories.auth import IdentityDenied
+from app.core.workspace_access import configured_home
 from app.routers.web import render
 from app.services.oidc import AuthUnavailable, InvalidIdentity, ISSUERS
 
@@ -77,7 +78,7 @@ async def google_callback(request: Request):
         user_id = await run_in_threadpool(auth.bind_identity,claims)
         session = await run_in_threadpool(auth.create_session,user_id,old_token)
         user = await run_in_threadpool(auth.get_user,user_id)
-        response = RedirectResponse("/missoes/"+user["default_mission_code"],status_code=303)
+        response = RedirectResponse(configured_home(settings,user),status_code=303)
         set_session_cookie(response,settings,session["token"],session["expires_at"],auth.clock())
         response.set_cookie(COOKIE,session["csrf"],httponly=True,secure=settings.secure_cookies,samesite="strict",path="/")
         response.delete_cookie("secco_mission",path="/")
@@ -117,6 +118,8 @@ async def mission_preference(request: Request):
     mission = request.app.state.repository.get(code) if code in ("portugal","argentina") else None
     if not mission:
         raise HTTPException(422,"Selecione uma missão válida.")
+    if user.get("primary_locked"):
+        raise HTTPException(403,"A visão principal deste perfil é definida pela coordenação no servidor.")
     await run_in_threadpool(request.app.state.auth.set_default,user["id"],mission.id)
     return RedirectResponse("/missoes/"+mission.codigo,status_code=303)
 
@@ -127,6 +130,7 @@ def current_user(request: Request):
     if not user:
         raise HTTPException(401,"Este ambiente local está sem identidade autenticada.")
     return {"id":user["id"],"participant_id":user["participant_id"],"nome":user["nome"],
-        "missao_padrao":user["default_mission_code"],
+        "missao_padrao":user["default_mission_code"],"perfil":"coordenacao" if user.get("is_coordinator") else "viajante",
+        "visao_principal":"consolidada" if user.get("is_coordinator") else user["default_mission_code"],
         "permissoes":{m.codigo:{"consultar":True,"editar":request.app.state.auth.can_edit(user,m.id)}
             for m in request.app.state.repository.list()}}

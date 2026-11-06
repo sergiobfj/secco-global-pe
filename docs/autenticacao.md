@@ -12,7 +12,7 @@
 
 PyJWT 2.15.1 e cryptography 50.0.2 estão instalados e já foram validados no ambiente virtual. Não há fallback para versões antigas. Sem configuração válida, as rotas de dados falham de forma fechada. O domínio autorizado fora dos testes é o de `WORKSPACE_DOMAIN` (fictício nesta distribuição: secco.example); domínios fictícios são usados somente em fixtures isoladas, sob a política de SQLite temporário.
 
-A configuração manual está em configuracao-google-workspace.md (`configuracao-google-workspace.md`, não incluído nesta etapa da distribuição). Os resultados automatizados estão em validacao-etapa06.md (`validacao-etapa06.md`, não incluído nesta etapa da distribuição).
+A configuração manual está em [configuracao-google-workspace.md](configuracao-google-workspace.md). Os resultados automatizados estão em [validacao-etapa06.md](validacao-etapa06.md).
 
 ## OIDC existente, preservado
 

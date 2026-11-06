@@ -19,7 +19,7 @@ def counts(location):
 def test_initial_data(database, repository):
     assert counts(database) == {
         "missions": 2, "participants": 4, "mission_participants": 4, "mission_goals": 4,
-        "mission_events": 0, "mission_results": 0, "mission_tasks": 0, "schema_migrations": 6,
+        "mission_events": 0, "mission_results": 0, "mission_tasks": 0, "schema_migrations": 7,
     }
     portugal, argentina = repository.list()
     assert portugal.codigo == "portugal" and portugal.edital == "26/2026"
@@ -114,7 +114,7 @@ def test_failed_migration_is_atomic(database, tmp_path, monkeypatch):
         migrate(database)
     with connect(database) as db:
         assert db.execute("SELECT name FROM sqlite_master WHERE name='temporary_test'").fetchone() is None
-        assert db.execute("SELECT COUNT(*) FROM schema_migrations").fetchone()[0] == 6
+        assert db.execute("SELECT COUNT(*) FROM schema_migrations").fetchone()[0] == 7
     assert len(MissionRepository(database).list()) == 2
 
 

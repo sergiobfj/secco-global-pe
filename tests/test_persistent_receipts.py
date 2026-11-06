@@ -363,7 +363,7 @@ def test_idempotent_migration_and_sync_success_is_impossible(persistent_client):
     with connect(settings.database_path) as db:
         assert db.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
         assert db.execute('PRAGMA foreign_key_check').fetchall()==[]
-        assert db.execute('SELECT COUNT(*) FROM schema_migrations').fetchone()[0]==6
+        assert db.execute('SELECT COUNT(*) FROM schema_migrations').fetchone()[0]==7
     for sql in ("UPDATE receipt_local_objects SET sync_state='sincronizado'","UPDATE receipt_local_objects SET remote_reference='drive-falso'"):
         with pytest.raises(sqlite3.IntegrityError):
             with connect(settings.database_path) as db: db.execute(sql)

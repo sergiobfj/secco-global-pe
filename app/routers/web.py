@@ -51,6 +51,8 @@ def find_mission(request, codigo):
 @router.get("/", response_class=HTMLResponse, name="home")
 def home(request: Request):
     user = getattr(request.state,"user",None)
+    if user and user.get("is_coordinator"):
+        return RedirectResponse("/consolidado",status_code=303)
     preferred = user["default_mission_code"] if user else request.cookies.get("secco_mission")
     if not request.query_params.get("selecionar") and preferred in ("portugal","argentina"):
         return RedirectResponse(f"/missoes/{preferred}",status_code=303)
@@ -62,7 +64,8 @@ def home(request: Request):
 @router.get("/missoes/{codigo}", response_class=HTMLResponse, name="dashboard")
 def dashboard(request: Request, codigo: str):
     mission = find_mission(request, codigo)
-    context = operational_dashboard(request.app.state.repository,request.app.state.itinerary,mission)
+    context = operational_dashboard(request.app.state.repository,request.app.state.itinerary,mission,
+        sync_legacy=not bool(getattr(request.state,"user",None) and request.state.user.get("is_coordinator")))
     context["diary_summary"]=request.app.state.diary.summary(mission.id)
     context["diary_links"]=request.app.state.diary.links(mission.id)
     response = render(request,"dashboard.html",mission=mission,title=mission.nome,**context)
@@ -100,3 +103,15 @@ def section_page(request: Request, section: str, codigo: str | None = None):
     mission = find_mission(request, codigo) if codigo else None
     return render(request, "placeholder.html", mission=mission, title=title,
                   description=description, active="organizacao" if section=="documentos" else section)
+
+
+@router.get('/consolidado',response_class=HTMLResponse,name='consolidated')
+def consolidated(request: Request):
+    user=getattr(request.state,'user',None)
+    if not user: raise HTTPException(401,'Entre com sua conta autorizada.')
+    missions=request.app.state.repository.list()
+    rows=[]
+    for mission in missions:
+        context=operational_dashboard(request.app.state.repository,request.app.state.itinerary,mission,sync_legacy=False)
+        rows.append({'mission':mission,**context,'summary':request.app.state.diary.summary(mission.id)})
+    return render(request,'consolidated.html',title='Visão consolidada',overview=rows)

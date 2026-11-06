@@ -50,11 +50,12 @@ def dashboard_data(repository, mission, now=None):
         "tasks": repository.tasks(mission.id),
     }
 
-def operational_dashboard(repository, itinerary, mission, now=None):
+def operational_dashboard(repository, itinerary, mission, now=None, *, sync_legacy=True):
     """Visão Hoje: programação primeiro, sem promover previsões a confirmações."""
     current = now or datetime.now(timezone.utc)
     context = dashboard_data(repository,mission,current)
-    itinerary.import_legacy(mission)
+    if sync_legacy:
+        itinerary.import_legacy(mission)
     items = itinerary.list(mission.id)
     today = context["today"]
     from app.services.itinerary import WEEKDAYS

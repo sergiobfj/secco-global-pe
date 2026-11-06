@@ -7,6 +7,7 @@ import re
 from urllib.parse import urlsplit
 
 from dotenv import load_dotenv
+from app.core.workspace_access import COORDINATOR_KEY, SECCO_ACCOUNTS, WORKSPACE_DOMAIN
 from app.core.test_database import testing_enabled, enforce_database_policy
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -40,9 +41,9 @@ class Settings:
             entries = json.loads(os.getenv("ALLOWED_USERS", "[]") or "[]")
             if not isinstance(entries, list):
                 raise ValueError()
-            allowed = tuple((entry["participant_id"], entry["email"].strip().casefold()) for entry in entries)
+            allowed = tuple((entry.get("participant_id",entry.get("account")), entry["email"].strip().casefold()) for entry in entries)
         except (ValueError, TypeError, KeyError, AttributeError):
-            raise RuntimeError("ALLOWED_USERS deve ser uma lista JSON de participant_id e email.") from None
+            raise RuntimeError("ALLOWED_USERS deve ser uma lista JSON de participant_id ou account e email.") from None
         try:
             idle = int(os.getenv("SESSION_IDLE_SECONDS", "1800"))
             absolute = int(os.getenv("SESSION_ABSOLUTE_SECONDS", "43200"))
@@ -80,6 +81,8 @@ class Settings:
         domain = self.google_workspace_domain
         if not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?", domain) or "." not in domain or ".." in domain:
             errors.append("GOOGLE_WORKSPACE_DOMAIN")
+        if not testing_enabled() and domain != WORKSPACE_DOMAIN:
+            errors.append("GOOGLE_WORKSPACE_DOMAIN")
         try:
             uri = urlsplit(self.google_redirect_uri)
             local = uri.hostname in ("127.0.0.1", "localhost", "::1") or (testing_enabled() and uri.hostname == "testserver")
@@ -94,8 +97,11 @@ class Settings:
             ids = [entry[0] for entry in self.allowed_users]
             emails = [entry[1] for entry in self.allowed_users]
             if (not ids or len(set(ids)) != len(ids) or len(set(emails)) != len(emails)
-                    or any(type(i) is not int or i <= 0 for i in ids)
+                    or any(not ((type(i) is int and i>0) or i==COORDINATOR_KEY) for i in ids)
                     or any(not isinstance(e,str) or len(e)>320 or not re.fullmatch(r"[^@\s]+@[^@\s]+", e) or e != e.casefold().strip() for e in emails)):
+                errors.append("ALLOWED_USERS")
+            if self.google_workspace_domain==WORKSPACE_DOMAIN and any(
+                key not in SECCO_ACCOUNTS or SECCO_ACCOUNTS[key][0]!=email for key,email in self.allowed_users):
                 errors.append("ALLOWED_USERS")
         except (TypeError, IndexError):
             errors.append("ALLOWED_USERS")
