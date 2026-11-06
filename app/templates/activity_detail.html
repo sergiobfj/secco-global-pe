@@ -8,9 +8,10 @@
 <dl class="activity-facts">
 <div><dt>Descrição</dt><dd>{{ item.descricao or 'Nenhuma descrição informada.' }}</dd></div>
 <div><dt>Local</dt><dd>{{ item.local or 'Local a definir.' }}</dd></div>
-<div><dt>Endereço</dt><dd>{{ item.endereco or 'Endereço não informado.' }}{% if item.endereco and not item.endereco_validado %}<small>Aguardando conferência da equipe para liberar o mapa.</small>{% endif %}</dd></div>
+<div><dt>Endereço</dt><dd>{{ item.endereco or 'Endereço não informado.' }}{% if item.endereco and not item.endereco_validado %}<small>{{ 'Endereço transcrito do documento; confira o destino antes de sair.' if item.document_source and item.maps_url else 'Aguardando conferência da equipe para liberar o mapa.' }}</small>{% endif %}</dd></div>
 <div><dt>Participantes previstos</dt><dd>{% if item.participantes %}{{ item.participantes|map(attribute='nome')|join(', ') }}{% else %}Participantes não definidos.{% endif %}</dd></div>
 <div><dt>Origem da informação</dt><dd>{{ item.origem_label }}</dd></div>
+{% if item.document_source %}<div><dt>Referência documental</dt><dd>{{ item.document_source.document.name }} · {{ item.document_source.locator }}</dd></div><div><dt>Precisão do horário</dt><dd>{{ item.time_note }}{% if item.suggested_window %}<small>{{ item.suggested_window }}</small>{% endif %}</dd></div>{% endif %}
 <div><dt>Observações</dt><dd>{{ item.observacoes or 'Nenhuma observação informada.' }}</dd></div>
 {% if item.link_externo %}<div><dt>Link externo</dt><dd><a class="text-link" href="{{ item.link_externo }}" target="_blank" rel="noopener noreferrer">Abrir referência ↗</a></dd></div>{% endif %}
 </dl>

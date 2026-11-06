@@ -9,7 +9,7 @@ from app.core.forms import read_form
 from app.repositories.itinerary import ActivityConflict
 from app.routers.web import find_mission, render
 from app.services.itinerary import (CATEGORIES, STATUSES, ORIGINS, WEEKDAYS, InvalidActivity,
-                                    calendar_days, choose_day, mission_today, validate_activity)
+                                    calendar_days, choose_day, mission_today, validate_activity, agenda_groups)
 
 router = APIRouter(dependencies=[Depends(authorize_mission_route)])
 
@@ -57,7 +57,7 @@ def planning(request: Request,codigo: str,data: str | None=None,sem_data: bool=F
     all_items = repository(request,mission).list(mission.id)
     items = [item for item in all_items if item["data"] == (None if sem_data else selected.isoformat())]
     return render(request,"planning.html",title="Planejamento",active="planejamento",mission=mission,
-        items=items,selected=selected,weekday=WEEKDAYS[selected.weekday()],today=today,
+        items=items,agenda_groups=agenda_groups(items),selected=selected,weekday=WEEKDAYS[selected.weekday()],today=today,
         days=calendar_days(mission,selected,today),undated_count=sum(item["data"] is None for item in all_items),
         sem_data=sem_data,diary_links=request.app.state.diary.links(mission.id))
 

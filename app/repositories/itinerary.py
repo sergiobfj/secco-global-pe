@@ -1,6 +1,7 @@
 from app.db.attribution import attribute
 """Fonte da agenda planejada. Compromissos legados são preservados e importados uma vez."""
 import json
+from contextlib import nullcontext
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
@@ -16,8 +17,9 @@ class ActivityConflict(ValueError):
 
 
 class ItineraryRepository:
-    def __init__(self,database_path):
+    def __init__(self,database_path, *, _connection=None):
         self.database_path = database_path
+        self._connection = _connection
 
     def _hydrate(self,db,row):
         data = dict(row)
@@ -40,9 +42,12 @@ class ItineraryRepository:
             return self._hydrate(db,row) if row else None
 
     def save(self,mission_id,data,item_id=None,version=None,request_key=None,actor_user_id=None):
-        with connect(self.database_path) as db:
+        with (connect(self.database_path) if self._connection is None else nullcontext(self._connection)) as db:
             # Reserva a escrita antes de conferir a versão, evitando atualizações perdidas.
-            db.execute("BEGIN IMMEDIATE")
+            if self._connection is None:
+                db.execute("BEGIN IMMEDIATE")
+            elif not db.in_transaction:
+                raise RuntimeError("A importação em lote exige uma transação ativa.")
             if item_id is None and request_key:
                 existing = db.execute("SELECT * FROM itinerary_items WHERE request_key=?",
                                       (request_key,)).fetchone()

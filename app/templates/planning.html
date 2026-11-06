@@ -15,7 +15,7 @@
 <div class="day-heading"><div><p class="eyebrow">A ORGANIZAR</p><h2>Sem data definida</h2><p>Oportunidades e sugestões aguardando seu planejamento.</p></div></div>
 {% endif %}
 <p class="agenda-guidance">Somente atividades com status Confirmado são compromissos confirmados. A origem da informação, por si só, não confirma uma atividade.</p>
-{% if items %}<div class="activity-list">{% for item in items %}{{ activity(item,mission,diary_links=diary_links) }}{% endfor %}</div>
+{% if items %}{% for label,group in agenda_groups %}<section class="agenda-group"><h3>{{ label }}</h3><div class="activity-list">{% for item in group %}{{ activity(item,mission,diary_links=diary_links) }}{% endfor %}</div></section>{% endfor %}
 {% else %}<div class="operational-empty">{{ icon('planejamento') }}<div><h3>{{ 'Tudo organizado por aqui.' if sem_data else 'Espaço para os próximos encontros.' }}</h3><p>{{ 'Nenhuma atividade sem data nesta missão.' if sem_data else 'Este dia está livre. Adicione uma atividade ou explore as opções sem data.' }}</p>{% if can_edit is not defined or can_edit %}<a class="text-link" href="/missoes/{{ mission.codigo }}/atividades/nova{{ '?data='+selected.isoformat() if not sem_data else '' }}">Adicionar atividade {{ icon('arrow') }}</a>{% endif %}</div></div>{% endif %}
 {% if mission.codigo=='argentina' %}<p class="agenda-footnote">A agenda permite consultar datas fora do período oficial para exemplos e planejamento.</p>{% endif %}
 </div>

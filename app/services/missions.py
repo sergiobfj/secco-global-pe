@@ -58,7 +58,7 @@ def operational_dashboard(repository, itinerary, mission, now=None, *, sync_lega
         itinerary.import_legacy(mission)
     items = itinerary.list(mission.id)
     today = context["today"]
-    from app.services.itinerary import WEEKDAYS
+    from app.services.itinerary import WEEKDAYS, agenda_groups
     def upcoming(item):
         if item["status"]!="confirmado" or not item["data"] or item["data"]<today.isoformat():
             return False
@@ -73,4 +73,10 @@ def operational_dashboard(repository, itinerary, mission, now=None, *, sync_lega
         next_event=next((item for item in items if upcoming(item)),None),
         undated_count=sum(item["data"] is None and item["status"]!="cancelado" for item in items),
     )
+    context['today_groups']=agenda_groups(context['today_events'])
+    context['next_planned']=next((item for item in items
+        if item.get('document_source') and item['status'] in ('a_confirmar','sugestao')
+        and item['data'] and item['data']>=today.isoformat()
+        and (not item['inicio_utc'] or datetime.fromisoformat(item['inicio_utc'].replace('Z','+00:00'))>=current
+             or (item['fim_utc'] and datetime.fromisoformat(item['fim_utc'].replace('Z','+00:00'))>=current))),None)
     return context

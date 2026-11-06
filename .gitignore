@@ -25,3 +25,9 @@ credentials*.json
 .local/
 exports/
 evidence/
+
+# Itineraries and import reports belong in a private directory outside this repository.
+*.xlsx
+*.pdf
+*import-report*.json
+*dry-run*.json

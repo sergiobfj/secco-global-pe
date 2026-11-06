@@ -9,6 +9,9 @@
     <div class="activity-content">
       <div class="activity-tags"><span class="category category-{{ item.categoria }}">{{ item.categoria_label }}</span><span class="status status-{{ item.status }}">{{ item.status_label }}</span></div>
       <h3>{{ item.titulo }}</h3>
+      {% if item.time_note %}<p class="time-note">{{ item.time_note }}</p>{% endif %}
+      {% if item.agenda_group=='Agenda oficial' %}<p class="official-label">Agenda oficial</p>{% endif %}
+      {% if item.suggested_window %}<p>{{ item.suggested_window }}</p>{% endif %}
       {% if item.local %}<p>{{ item.local }}</p>{% endif %}
       {% if item.endereco %}<p class="activity-address">{{ item.endereco }}</p>{% endif %}
       <span class="activity-detail-link">Ver detalhes <span aria-hidden="true">↗</span></span>

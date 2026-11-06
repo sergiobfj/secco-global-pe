@@ -2,6 +2,7 @@
 from datetime import date, datetime, time, timezone, timedelta
 from urllib.parse import urlsplit, urlencode
 from zoneinfo import ZoneInfo
+from app.services.itinerary_provenance import decode, TIME_LABELS
 
 CATEGORIES = {"institucional":"Institucional","evento":"Evento","turismo":"Turismo",
               "alimentacao":"Alimentação","transporte":"Transporte","descanso":"Descanso"}
@@ -118,7 +119,29 @@ def present_item(item):
     )
     result["maps_url"] = ("https://www.google.com/maps/search/?"+urlencode({"api":"1","query":result["endereco"]})
                           if result["endereco_validado"] and result["endereco"] else None)
+    metadata=decode(result.get('request_key'))
+    result['document_source']=metadata
+    result['agenda_group']='Agenda oficial' if result['origem']=='agenda_oficial' or metadata else (
+        'Turismo / tempo livre' if result['categoria'] in ('turismo','descanso') else 'Outras atividades')
+    result['time_note']='';result['suggested_window']=''
+    if metadata:
+        edited=(result.get('horario_inicio')!=metadata.get('source_start') or
+                result.get('horario_fim')!=metadata.get('source_end'))
+        kind='user' if edited else metadata.get('time_kind','missing')
+        result['time_note']=TIME_LABELS.get(kind,TIME_LABELS['missing'])
+        if kind=='grid_window' and metadata.get('grid_start'):
+            result['suggested_window']='Janela sugerida pela grade: '+metadata['grid_start']+(
+                ' às '+metadata['grid_end'] if metadata.get('grid_end') else '')+'; confirmar horário e duração.'
+        # An address transcribed from the document may be searched, without claiming team verification.
+        if not result['maps_url'] and metadata.get('address') and result['endereco']==metadata['address']:
+            result['maps_url']='https://www.google.com/maps/search/?'+urlencode({'api':'1','query':result['endereco']})
     return result
+
+
+def agenda_groups(items):
+    return [(label,[item for item in items if item['agenda_group']==label])
+            for label in ('Agenda oficial','Turismo / tempo livre','Outras atividades')
+            if any(item['agenda_group']==label for item in items)]
 
 
 def mission_today(mission, now=None):

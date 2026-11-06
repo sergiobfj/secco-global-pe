@@ -384,6 +384,9 @@ textarea:focus-visible {
 .activity-list {
   border-top: 1px solid var(--line);
 }
+.agenda-group { margin-top: 24px; }
+.agenda-group > h3 { margin-bottom: 10px; font-size: 14px; color: var(--green); }
+.activity-content .official-label, .activity-content .time-note { font-size: 11px; color: var(--muted); }
 .activity-item {
   position: relative;
   border-bottom: 1px solid var(--line);
