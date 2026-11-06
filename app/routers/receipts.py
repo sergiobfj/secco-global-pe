@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse, Response
 from app.core.auth import actor_id, authorize_mission_route, can_edit
 from app.core.receipt_upload import read_receipt_form
+from app.core.forms import read_form
 from app.repositories.itinerary import ActivityConflict
 from app.routers.web import find_mission, render
 from app.services.itinerary import InvalidActivity, mission_today
@@ -35,7 +36,8 @@ def form_page(request,mission,values,entry=None,errors=None,status_code=200):
     participant=next((p for p in mission.participantes if p.id==request.state.user['participant_id']),None)
     if not participant: raise HTTPException(403,'O participante autenticado não pertence a esta missão.')
     response=render(request,'receipt_form.html',title='Registrar comprovante' if not entry else 'Editar registro',active='prestacao-de-contas',mission=mission,
-        values=values,entry=entry,errors=errors or {},rules=rules,currencies=CURRENCIES,participant=participant)
+        values=values,entry=entry,errors=errors or {},rules=rules,currencies=CURRENCIES,participant=participant,
+        persistent_storage=request.app.state.receipt_storage.persistent)
     response.status_code=status_code
     return response
 
@@ -44,7 +46,8 @@ def form_page(request,mission,values,entry=None,errors=None,status_code=200):
 def receipts(request: Request,codigo: str):
     mission=require_capture(request,codigo)
     return render(request,'receipts.html',title='Meus comprovantes sintéticos',active='prestacao-de-contas',mission=mission,
-        entries=request.app.state.receipts.list(mission.id,actor_id(request)),statuses=STATUSES)
+        entries=request.app.state.receipts.list(mission.id,actor_id(request)),statuses=STATUSES,
+        persistent_storage=request.app.state.receipt_storage.persistent)
 
 
 @router.get('/missoes/{codigo}/comprovantes/novo',name='new_receipt')
@@ -64,7 +67,8 @@ def receipt_detail(request: Request,codigo: str,entry_id: int):
     mission=require_capture(request,codigo)
     entry=current_entry(request,mission,entry_id)
     return render(request,'receipt_detail.html',title='Comprovante sintético',active='prestacao-de-contas',mission=mission,entry=entry,statuses=STATUSES,
-        history=request.app.state.receipts.history(entry_id,actor_id(request)),message=request.query_params.get('aviso')=='salvo')
+        history=request.app.state.receipts.history(entry_id,actor_id(request)),
+        storage_events=request.app.state.receipts.storage_events(entry_id,actor_id(request)),message=request.query_params.get('aviso')=='salvo')
 
 
 @router.get('/missoes/{codigo}/comprovantes/{entry_id:int}/editar')
@@ -124,8 +128,24 @@ def receipt_attachment(request: Request,codigo: str,entry_id: int,attachment_id:
     entry=current_entry(request,mission,entry_id)
     attachment=next((a for a in entry['attachments'] if a['id']==attachment_id),None)
     if not attachment: raise HTTPException(404,'Anexo não encontrado.')
-    if not attachment['available']: raise HTTPException(410,'Este arquivo temporário está indisponível. Reenvie um comprovante sintético.')
-    try: content=request.app.state.receipt_storage.read(attachment['id'],attachment['checksum'])
+    if not attachment['available']: raise HTTPException(410,'Este arquivo está indisponível. Confira o estado do armazenamento.')
+    try: content=request.app.state.receipt_storage.read_attachment(attachment)
     except OSError: raise HTTPException(410,'O arquivo não passou na verificação de integridade. Reenvie o anexo.') from None
     extension=attachment['extension']
     return Response(content,media_type=attachment['mime'],headers={'Content-Disposition':f'attachment; filename="sintetico-{attachment_id}.{extension}"','Content-Security-Policy':"sandbox; default-src 'none'",'Cache-Control':'no-store'})
+
+
+@router.post('/missoes/{codigo}/comprovantes/{entry_id:int}/anexos/{attachment_id}/excluir')
+async def delete_receipt_attachment(request: Request,codigo: str,entry_id: int,attachment_id: str):
+    mission=require_capture(request,codigo)
+    entry=current_entry(request,mission,entry_id)
+    values=await read_form(request)
+    if values.get('confirm_delete')!='on': raise HTTPException(422,'Confirme a exclusão do anexo sintético.')
+    try:
+        version=int(values.get('version',''))
+        await run_in_threadpool(request.app.state.receipts.delete_attachment,mission.id,entry_id,attachment_id,actor_id(request),version)
+    except (ValueError,ActivityConflict) as error:
+        raise HTTPException(409,'Confira a versão atual do registro antes de excluir.') from None
+    except LookupError: raise HTTPException(404,'Anexo não encontrado.') from None
+    except (OSError,sqlite3.Error): raise HTTPException(503,'Não foi possível confirmar a exclusão. Confira o registro antes de tentar novamente.') from None
+    return RedirectResponse(f'/missoes/{codigo}/comprovantes/{entry_id}?aviso=salvo',status_code=303)

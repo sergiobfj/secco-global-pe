@@ -27,6 +27,8 @@ class Settings:
     session_absolute_seconds: int = 43200
     session_rotation_seconds: int = 900
     receipts_synthetic_enabled: bool = False
+    receipts_storage_backend: str = "temporary"
+    receipts_private_dir: Path | None = None
 
     @classmethod
     def from_env(cls):
@@ -48,6 +50,8 @@ class Settings:
         except ValueError:
             raise RuntimeError("Os tempos de sessão devem ser números inteiros.") from None
         return cls(
+            receipts_storage_backend=os.getenv("RECEIPTS_STORAGE_BACKEND", "temporary").strip().lower(),
+            receipts_private_dir=Path(os.environ["RECEIPTS_PRIVATE_DIR"]) if os.getenv("RECEIPTS_PRIVATE_DIR") else None,
             app_env=os.getenv("APP_ENV", "").strip().lower(),
             receipts_synthetic_enabled=os.getenv("RECEIPTS_SYNTHETIC_ENABLED", "false").strip().lower() == "true",
             dev_no_auth=os.getenv("DEV_NO_AUTH", "false").strip().lower() == "true",
@@ -110,5 +114,14 @@ class Settings:
             raise RuntimeError("Confira os limites de expiração e renovação da sessão.")
         if self.receipts_synthetic_enabled and self.app_env != "development":
             raise RuntimeError("Captura sintética de comprovantes é permitida somente em desenvolvimento.")
+        if self.receipts_storage_backend not in ("temporary","local"):
+            raise RuntimeError("Adaptador de armazenamento desconhecido.")
+        if self.receipts_storage_backend=="local":
+            if self.app_env!="development" or not self.receipts_synthetic_enabled or self.dev_no_auth or not self.auth_ready:
+                raise RuntimeError("Persistência local exige desenvolvimento sintético explicitamente habilitado e autenticação configurada.")
+            if self.receipts_private_dir is None:
+                raise RuntimeError("Configure RECEIPTS_PRIVATE_DIR para ativar a persistência local.")
+            from app.core.storage_paths import validate_private_directory
+            validate_private_directory(self.receipts_private_dir,self.database_path)
         if self.app_env == "production" and not self.auth_ready:
             raise RuntimeError("Esta versão não pode executar em produção sem configuração OIDC completa e HTTPS.")

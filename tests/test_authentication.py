@@ -333,7 +333,7 @@ def test_migration_is_additive_and_initialization_idempotent(authenticated_app):
     migrate(location);seed(location);client.app.state.auth.provision()
     migrate(location);seed(location);client.app.state.auth.provision()
     with connect(location) as db:
-        assert db.execute("SELECT COUNT(*) FROM schema_migrations").fetchone()[0]==5
+        assert db.execute("SELECT COUNT(*) FROM schema_migrations").fetchone()[0]==6
         assert db.execute("SELECT COUNT(*) FROM app_users").fetchone()[0]==4
         assert db.execute("SELECT COUNT(*) FROM participants").fetchone()[0]==4
         assert db.execute("PRAGMA integrity_check").fetchone()[0]=="ok"

@@ -366,7 +366,7 @@ def test_migration_integrity_and_no_duplicate_seed(receipt_client):
     with connect(location) as db:
         assert db.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
         assert db.execute('PRAGMA foreign_key_check').fetchall()==[]
-        assert db.execute('SELECT COUNT(*) FROM schema_migrations').fetchone()[0]==5
+        assert db.execute('SELECT COUNT(*) FROM schema_migrations').fetchone()[0]==6
         assert db.execute('SELECT COUNT(*) FROM expenses').fetchone()[0]==1
         with pytest.raises(sqlite3.IntegrityError): db.execute('UPDATE expenses SET mission_id=1 WHERE id=?',(item,))
 

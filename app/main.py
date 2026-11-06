@@ -19,6 +19,7 @@ from app.repositories.missions import MissionRepository
 from app.routers import api, web, planning, diary, auth, receipts
 from app.repositories.receipts import ReceiptRepository
 from app.services.receipt_storage import TemporaryReceiptStorage
+from app.services.local_receipt_storage import LocalReceiptStorage
 from app.repositories.itinerary import ItineraryRepository
 from app.repositories.diary import DiaryRepository
 
@@ -41,7 +42,15 @@ def create_app(settings: Settings | None = None):
             application.state.auth.provision()
         storage = None
         if configuration.receipts_synthetic_enabled:
-            storage = TemporaryReceiptStorage(configuration.database_path)
+            if configuration.receipts_storage_backend=="local":
+                storage = LocalReceiptStorage(configuration.database_path,configuration.receipts_private_dir)
+                try:
+                    storage.reconcile()
+                except Exception:
+                    storage.close()
+                    raise
+            else:
+                storage = TemporaryReceiptStorage(configuration.database_path)
             application.state.receipt_storage = storage
             application.state.receipts = ReceiptRepository(configuration.database_path, storage)
         try:

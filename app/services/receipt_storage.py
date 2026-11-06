@@ -102,6 +102,11 @@ def _pdf(data):
 
 
 class TemporaryReceiptStorage:
+    persistent = False
+
+    def read_attachment(self,attachment):
+        return self.read(attachment["id"],attachment["checksum"])
+
     def __init__(self, database_path):
         parent=None
         if testing_enabled():
