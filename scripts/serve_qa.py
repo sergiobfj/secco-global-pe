@@ -9,6 +9,7 @@ from app.core.test_database import TemporaryDatabase, assert_temporary_database,
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--port",type=int,default=8057)
+    parser.add_argument("--auth-mode",choices=("local","synthetic","pending"),default="local")
     args=parser.parse_args()
     enable_test_mode()
     if os.getenv("DATABASE_PATH"):
@@ -24,16 +25,38 @@ def main():
         from app.main import create_app
         from fastapi import Request
         import uvicorn
-        application=create_app(Settings("development",True,temporary.path))
+        if args.auth_mode=="synthetic":
+            import sys
+            sys.path.insert(0,str(ROOT/"tests"))
+            from auth_support import SyntheticGoogle, synthetic_settings
+            settings=synthetic_settings(temporary.path,google_redirect_uri=f"http://127.0.0.1:{args.port}/auth/google/callback")
+            application=create_app(settings)
+            google=SyntheticGoogle(settings)
+            application.state.oidc=google.provider()
+        else:
+            application=create_app(Settings("development",args.auth_mode=="local",temporary.path))
+        application.state.qa_auth_mode=args.auth_mode
         instance=temporary.nonce
         application.state.qa_instance=instance
         (ROOT/".tools").mkdir(exist_ok=True)
         manifest=ROOT/".tools/qa-current.json"
-        manifest.write_text(json.dumps({"url":f"http://127.0.0.1:{args.port}","instance":instance}),encoding="utf-8")
+        manifest.write_text(json.dumps({"url":f"http://127.0.0.1:{args.port}","instance":instance,"auth_mode":args.auth_mode}),encoding="utf-8")
         @application.get("/__qa__/identity")
         def identity():
             assert_temporary_database(application.state.settings.database_path)
             return {"qa":True,"isolated":True,"policy":"temporary-lease-v1","instance":instance}
+        if args.auth_mode=="synthetic":
+            from fastapi import HTTPException
+            from fastapi.responses import RedirectResponse
+            from urllib.parse import urlencode
+            @application.get("/__qa__/authorize")
+            def synthetic_authorize(request: Request):
+                assert_temporary_database(application.state.settings.database_path)
+                if request.headers.get("x-secco-qa-instance")!=instance:
+                    raise HTTPException(403,"Identidade de QA necessária.")
+                google.nonce=request.query_params["nonce"]
+                google.challenge=request.query_params["code_challenge"]
+                return RedirectResponse("/auth/google/callback?"+urlencode({"state":request.query_params["state"],"code":"synthetic-browser-code"}),status_code=303)
         server=uvicorn.Server(uvicorn.Config(application,host="127.0.0.1",port=args.port,proxy_headers=False))
         @application.post("/__qa__/shutdown")
         async def shutdown(request: Request):

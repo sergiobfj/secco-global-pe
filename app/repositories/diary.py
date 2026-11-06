@@ -1,3 +1,4 @@
+from app.db.attribution import attribute
 import json
 import sqlite3
 
@@ -42,11 +43,11 @@ class DiaryRepository:
             return {r["itinerary_item_id"]:dict(r) for r in db.execute("""
                 SELECT id,itinerary_item_id,status FROM diary_entries WHERE mission_id=? AND itinerary_item_id IS NOT NULL""",(mission_id,))}
 
-    def _history(self,db,entry_id,entity,entity_id,action,data):
-        db.execute("INSERT INTO diary_history(entry_id,entidade,entidade_id,acao,snapshot) VALUES(?,?,?,?,?)",
-                   (entry_id,entity,entity_id,action,json.dumps(data,ensure_ascii=False)))
+    def _history(self,db,entry_id,entity,entity_id,action,data,actor_user_id=None):
+        db.execute("INSERT INTO diary_history(entry_id,entidade,entidade_id,acao,snapshot,actor_user_id) VALUES(?,?,?,?,?,?)",
+                   (entry_id,entity,entity_id,action,json.dumps(data,ensure_ascii=False),actor_user_id))
 
-    def save(self,mission_id,data,entry_id=None,version=None,request_key=None,itinerary_item_id=None):
+    def save(self,mission_id,data,entry_id=None,version=None,request_key=None,itinerary_item_id=None,actor_user_id=None):
         try:
             with connect(self.database_path) as db:
                 db.execute("BEGIN IMMEDIATE")
@@ -90,7 +91,8 @@ class DiaryRepository:
                 for person in data["participantes"]:
                     db.execute("INSERT INTO diary_participants(entry_id,mission_id,participant_id) VALUES(?,?,?)",
                                (entry_id,mission_id,person))
-                self._history(db,entry_id,"registro",entry_id,action,data)
+                attribute(db,"diary_entries",entry_id,actor_user_id,created=action=="criacao")
+                self._history(db,entry_id,"registro",entry_id,action,data,actor_user_id)
                 return entry_id
         except sqlite3.IntegrityError as error:
             raise ActivityConflict("O registro não pôde ser salvo. Confira o vínculo e possíveis duplicidades.") from error
@@ -106,7 +108,7 @@ class DiaryRepository:
                 SELECT c.*,EXISTS(SELECT 1 FROM eligible_goal_claims v WHERE v.id=c.id) AS counted
                 FROM diary_goal_claims c WHERE c.mission_id=? AND c.entry_id=? ORDER BY c.id""",(mission_id,entry_id))]
 
-    def save_related(self,mission_id,entry_id,data,entity,entity_id=None,version=None,request_key=None,entry_version=None):
+    def save_related(self,mission_id,entry_id,data,entity,entity_id=None,version=None,request_key=None,entry_version=None,actor_user_id=None):
         fields=EVIDENCE_FIELDS if entity=="evidencia" else CLAIM_FIELDS
         table="diary_evidence" if entity=="evidencia" else "diary_goal_claims"
         try:
@@ -147,7 +149,8 @@ class DiaryRepository:
                         columns.append("request_key"); values.append(request_key)
                     marks=",".join("?" for _ in values)
                     entity_id=db.execute(f"INSERT INTO {table}({','.join(columns)}) VALUES({marks})",values).lastrowid
-                self._history(db,entry_id,entity,entity_id,"salvar",data)
+                attribute(db,table,entity_id,actor_user_id,created=entity_id is not None and version is None)
+                self._history(db,entry_id,entity,entity_id,"salvar",data,actor_user_id)
                 return entity_id
         except sqlite3.IntegrityError as error:
             raise ActivityConflict("Já existe esta classificação ou referência nesta missão. Confira o registro original e os vínculos.") from error

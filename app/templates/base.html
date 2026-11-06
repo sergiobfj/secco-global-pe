@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="{{ url_for('static',path='/css/app.css') }}">
     <link rel="stylesheet" href="/static/css/agenda.css">
     {% if features_diary %}<link rel="stylesheet" href="/static/css/diary.css">{% endif %}
+    {% if features_auth %}<link rel="stylesheet" href="/static/css/auth.css">{% endif %}
     <script src="{{ url_for('static',path='/js/app.js') }}" defer>
 </script>
 </head>
@@ -68,10 +69,12 @@
 </details>
 {% else %}<span class="topbar-program">Programa GLOBAL.PE <span>FACEPE</span>
 </span>
-{% endif %}<span class="secco-avatar"><img src="/static/brand/secco-symbol-forest.svg" alt="Símbolo SECCO" width="24" height="29"></span>
+{% endif %}{% if current_user %}<details class="account-menu"><summary aria-label="Conta de {{ current_user.nome }}"><span class="account-short-name">{{ current_user.nome.split()[0] }}</span><span class="account-initials">{{ current_user.nome.split()[0][0] }}{{ current_user.nome.split()[-1][0] }}</span></summary><div class="account-panel"><strong>{{ current_user.nome }}</strong><p>Missão padrão: {{ 'Portugal' if current_user.default_mission_code=='portugal' else 'Argentina' }}</p>{% if mission and mission.codigo!=current_user.default_mission_code %}<form method="post" action="/auth/preferencia"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="missao" value="{{ mission.codigo }}"><button type="submit">Usar {{ mission.pais }} ao entrar</button></form>{% endif %}<form method="post" action="/auth/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit">Sair do aplicativo</button></form></div></details>{% else %}<span class="secco-avatar"><img src="/static/brand/secco-symbol-forest.svg" alt="Símbolo SECCO" width="24" height="29"></span>{% endif %}
 </div>
     </header>
+    {% if features_auth and dev_access %}<div class="development-note">Acesso local sem login. A autoria não está autenticada.</div>{% endif %}
     <main id="conteudo" tabindex="-1">
+    {% if current_user and mission and not can_edit %}<div class="readonly-notice"><strong>Missão em modo de consulta</strong>Você pode acompanhar esta missão. A edição exige permissão explícita.</div>{% endif %}
 {% block content %}
 {% endblock %}</main>
     <footer class="page-footer">

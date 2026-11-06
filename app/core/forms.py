@@ -8,7 +8,7 @@ COOKIE = "secco_csrf"
 
 
 def csrf_token(request):
-    return request.cookies.get(COOKIE) or secrets.token_urlsafe(32)
+    return getattr(request.state,"auth_csrf",None) or request.cookies.get(COOKIE) or secrets.token_urlsafe(32)
 
 
 async def read_form(request: Request,max_bytes=196608):
@@ -40,4 +40,7 @@ async def read_form(request: Request,max_bytes=196608):
     cookie = request.cookies.get(COOKIE,"")
     if not cookie or not isinstance(token,str) or not secrets.compare_digest(token,cookie):
         raise HTTPException(403,"A sessão do formulário expirou. Reabra a página antes de salvar.")
+    expected_token = getattr(request.state,"auth_csrf",None)
+    if expected_token and not secrets.compare_digest(token,expected_token):
+        raise HTTPException(403,"O formulário pertence a outra sessão. Reabra a página antes de salvar.")
     return values

@@ -1,3 +1,4 @@
+from app.db.attribution import attribute
 """Fonte da agenda planejada. Compromissos legados são preservados e importados uma vez."""
 import json
 from datetime import datetime, timezone
@@ -38,7 +39,7 @@ class ItineraryRepository:
             row = db.execute("SELECT * FROM itinerary_items WHERE mission_id=? AND id=?",(mission_id,item_id)).fetchone()
             return self._hydrate(db,row) if row else None
 
-    def save(self,mission_id,data,item_id=None,version=None,request_key=None):
+    def save(self,mission_id,data,item_id=None,version=None,request_key=None,actor_user_id=None):
         with connect(self.database_path) as db:
             # Reserva a escrita antes de conferir a versão, evitando atualizações perdidas.
             db.execute("BEGIN IMMEDIATE")
@@ -72,20 +73,22 @@ class ItineraryRepository:
             for participant in data["participantes"]:
                 db.execute("INSERT INTO itinerary_participants(item_id,mission_id,participant_id) VALUES(?,?,?)",
                            (item_id,mission_id,participant))
-            db.execute("INSERT INTO itinerary_history(item_id,acao,snapshot) VALUES(?,?,?)",
-                       (item_id,action,json.dumps(data,ensure_ascii=False)))
+            attribute(db,"itinerary_items",item_id,actor_user_id,created=action=="criacao")
+            db.execute("INSERT INTO itinerary_history(item_id,acao,snapshot,actor_user_id) VALUES(?,?,?,?)",
+                       (item_id,action,json.dumps(data,ensure_ascii=False),actor_user_id))
             return item_id
 
-    def cancel(self,mission_id,item_id,version):
+    def cancel(self,mission_id,item_id,version,actor_user_id=None):
         with connect(self.database_path) as db:
             cursor = db.execute("""UPDATE itinerary_items SET status='cancelado',version=version+1,
                 updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=? AND mission_id=? AND version=?""",
                                 (item_id,mission_id,version))
             if cursor.rowcount!=1:
                 raise ActivityConflict("A atividade mudou. Reabra os detalhes antes de cancelar.")
+            attribute(db,"itinerary_items",item_id,actor_user_id)
             row = dict(db.execute("SELECT * FROM itinerary_items WHERE id=?",(item_id,)).fetchone())
-            db.execute("INSERT INTO itinerary_history(item_id,acao,snapshot) VALUES(?,'cancelamento',?)",
-                       (item_id,json.dumps(row,ensure_ascii=False)))
+            db.execute("INSERT INTO itinerary_history(item_id,acao,snapshot,actor_user_id) VALUES(?,'cancelamento',?,?)",
+                       (item_id,json.dumps(row,ensure_ascii=False),actor_user_id))
 
     def import_legacy(self,mission):
         # Os registros legados ficam intactos. A agenda usa a cópia vinculada, sem contá-los duas vezes.

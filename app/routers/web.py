@@ -1,3 +1,4 @@
+from app.core.auth import can_edit
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from app.core.forms import COOKIE, csrf_token
@@ -20,14 +21,21 @@ SECTIONS = {
 
 def render(request, template, **context):
     token = csrf_token(request)
+    user = getattr(request.state,"user",None)
+    mission = context.get("mission")
+    auth_available = hasattr(request.app.state,"auth")
     response = templates.TemplateResponse(request=request, name=template, context={
         "csrf_token": token, "features_diary": True,
+        "features_auth": True, "current_user": user,
+        "dev_access": request.app.state.settings.dev_no_auth,
+        "can_edit": can_edit(request,mission.id) if mission else request.app.state.settings.dev_no_auth,
+        "author_names": request.app.state.auth.author_names() if auth_available else {},
         "active": "inicio", "mission": None, **context
     })
-    response.set_cookie(COOKIE,token,httponly=True,samesite="strict",path="/")
+    response.set_cookie(COOKIE,token,httponly=True,samesite="strict",secure=request.app.state.settings.secure_cookies,path="/")
     selected = context.get("mission")
-    if selected:
-        response.set_cookie("secco_mission",selected.codigo,max_age=31536000,httponly=True,samesite="lax",path="/")
+    if selected and not user:
+        response.set_cookie("secco_mission",selected.codigo,max_age=31536000,httponly=True,samesite="lax",secure=request.app.state.settings.secure_cookies,path="/")
     return response
 
 
@@ -40,7 +48,8 @@ def find_mission(request, codigo):
 
 @router.get("/", response_class=HTMLResponse, name="home")
 def home(request: Request):
-    preferred = request.cookies.get("secco_mission")
+    user = getattr(request.state,"user",None)
+    preferred = user["default_mission_code"] if user else request.cookies.get("secco_mission")
     if not request.query_params.get("selecionar") and preferred in ("portugal","argentina"):
         return RedirectResponse(f"/missoes/{preferred}",status_code=303)
     missions = request.app.state.repository.list()

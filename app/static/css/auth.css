@@ -1,0 +1,18 @@
+/* Acesso e identidade mantêm a linguagem visual da operação. */
+.login-page{min-height:100dvh;display:flex;flex-direction:column;background:#FEFFF1;color:#1A413B}
+.login-header{display:flex;align-items:center;justify-content:space-between;padding:32px 6vw;border-bottom:1px solid #1a413b22}
+.login-header a{display:flex;min-height:44px;align-items:center}.login-header img{width:148px;height:auto}
+.login-header>span{font-size:12px;letter-spacing:.16em}.login-header small{display:block;font-size:10px;letter-spacing:.08em;text-align:right;margin-top:6px}
+.login-main{display:grid;place-items:center;flex:1;padding:64px 24px}.login-card{width:100%;max-width:440px}
+.login-card h1{font-size:clamp(36px,5vw,48px);line-height:1.08;letter-spacing:-.045em;margin:18px 0 24px}
+.login-description{font-size:16px;line-height:1.8;margin-bottom:32px}.google-button{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:56px;padding:16px 20px;background:#1A413B;color:#FEFFF1;border:1px solid #1A413B;border-radius:3px;font:700 14px Manrope,sans-serif;cursor:pointer;transition:background .15s}
+.google-button:hover:not(:disabled){background:#24574f}.google-button:disabled{background:#e6eadd;color:#52675e;border-color:#becbbb;cursor:not-allowed}
+.login-note{font-size:12px;line-height:1.8;margin-top:20px;color:#52675e}.auth-message{padding:18px 20px;border:1px solid #c5d4ba;background:#edf2e3;margin:0 0 24px;font-size:13px;line-height:1.8;border-radius:3px}.auth-message p{margin:6px 0 0}.auth-error{border-color:#c98a70;background:#faf0e8;color:#743e2c}
+.login-footer{padding:24px 6vw;display:flex;justify-content:space-between;gap:16px;font-size:10px;border-top:1px solid #1a413b22;line-height:1.8}
+.account-menu{position:relative}.account-menu>summary{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;cursor:pointer;list-style:none}.account-menu>summary::-webkit-details-marker{display:none}.account-initials{display:grid;place-items:center;width:32px;height:32px;border:1px solid #bdcdbd;border-radius:50%;font-size:11px;font-weight:700;background:#edf2e3}
+.account-panel{position:absolute;right:0;top:calc(100% + 8px);z-index:50;width:min(288px,calc(100vw - 32px));padding:20px;background:#FEFFF1;border:1px solid #cbd6c4;box-shadow:0 8px 24px #1a413b12}.account-panel strong{display:block;font-size:15px}.account-panel p{font-size:12px;margin:8px 0 12px}.account-panel button,.preference-button{min-height:44px;padding:10px 12px;text-align:left;border:1px solid #becbbb;background:transparent;color:#1A413B;font:600 12px Manrope,sans-serif;cursor:pointer;width:100%}.account-panel button:hover,.preference-button:hover{background:#edf2e3}
+.development-note,.readonly-notice{font-size:12px;line-height:1.8;padding:12px 20px;border-bottom:1px solid #cbd6c4;background:#edf2e3}.readonly-notice{padding:16px 20px;border:1px solid #cbd6c4;margin-bottom:24px}.readonly-notice strong{display:block}.auth-denied{max-width:620px;margin:64px auto}.auth-denied p{line-height:1.8;margin:24px 0}.auth-denied h1{font-size:clamp(32px,5vw,48px)}
+.authorship{font-size:11px;line-height:1.8;color:#52675e;margin:20px 0}
+@media(max-width:600px){.login-header{padding:20px 24px}.login-header img{width:116px}.login-main{padding:44px 24px}.login-description{font-size:14px}.login-footer{padding:20px 24px;flex-wrap:wrap}.development-note{padding:10px 16px}.topbar-right{gap:8px}.mission-switch summary{padding-inline:4px}}
+
+.account-menu>summary{gap:8px}.account-short-name{font-size:12px}@media(max-width:600px){.account-short-name{display:none}}

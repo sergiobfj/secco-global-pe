@@ -1,4 +1,6 @@
 import json
+from app.core.auth import actor_id, authorize_mission_route
+from fastapi import Depends
 import secrets
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -10,7 +12,7 @@ from app.services.diary import (TYPES,STATUSES,EVIDENCE_TYPES,EVIDENCE_STATUSES,
     validate_entry,validate_evidence,validate_claim,prefill_from_itinerary)
 from app.services.itinerary import InvalidActivity,mission_today
 
-router=APIRouter()
+router = APIRouter(dependencies=[Depends(authorize_mission_route)])
 
 
 def repo(request):
@@ -117,7 +119,7 @@ async def save_diary(request: Request,codigo: str,entry_id: int | None=None):
         source=integer(values,"itinerary_item_id",optional=True) if not entry else entry["itinerary_item_id"]
         if not entry and not 20<=len(values.get("request_key",""))<=100:
             raise InvalidActivity({"form":"Reabra o formulário para obter uma identificação válida."})
-        item_id=repo(request).save(mission.id,data,entry_id,version,values.get("request_key"),source)
+        item_id=repo(request).save(mission.id,data,entry_id,version,values.get("request_key"),source,actor_user_id=actor_id(request))
     except InvalidActivity as error:
         return failed(request,mission,"registro",values,error.errors,entry)
     except ActivityConflict as error:
@@ -176,7 +178,7 @@ async def save_related(request: Request,codigo: str,entry_id: int,related_id: in
                     raise ActivityConflict("A evidência mudou desde a abertura do formulário. Reabra e confira a referência atual.")
         version=integer(values,"version") if related else None
         repo(request).save_related(mission.id,entry_id,data,kind,related_id,version,values.get("request_key"),
-                                  entry_version=entry["version"])
+                                  entry_version=entry["version"],actor_user_id=actor_id(request))
     except InvalidActivity as error:
         return failed(request,mission,kind,values,error.errors,entry,related)
     except ActivityConflict as error:

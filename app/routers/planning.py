@@ -1,3 +1,5 @@
+from app.core.auth import actor_id, authorize_mission_route
+from fastapi import Depends
 import secrets
 
 from fastapi import APIRouter, HTTPException, Request
@@ -9,12 +11,11 @@ from app.routers.web import find_mission, render
 from app.services.itinerary import (CATEGORIES, STATUSES, ORIGINS, WEEKDAYS, InvalidActivity,
                                     calendar_days, choose_day, mission_today, validate_activity)
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(authorize_mission_route)])
 
 
 def repository(request,mission):
     repo = request.app.state.itinerary
-    repo.import_legacy(mission)
     return repo
 
 
@@ -100,7 +101,7 @@ async def create_activity(request: Request,codigo: str):
         key = values.get("request_key","")
         if not 20<=len(key)<=100:
             raise InvalidActivity({"form":"Reabra o formulário para obter uma identificação válida."})
-        item_id = repository(request,mission).save(mission.id,data,request_key=key)
+        item_id = repository(request,mission).save(mission.id,data,request_key=key,actor_user_id=actor_id(request))
     except InvalidActivity as error:
         return failure(request,mission,values,error.errors)
     except ActivityConflict as error:
@@ -119,7 +120,7 @@ async def update_activity(request: Request,codigo: str,item_id: int):
             version = int(values.get("version",""))
         except ValueError:
             raise InvalidActivity({"form":"Versão inválida. Reabra os detalhes da atividade."})
-        repository(request,mission).save(mission.id,data,item_id,version)
+        repository(request,mission).save(mission.id,data,item_id,version,actor_user_id=actor_id(request))
     except InvalidActivity as error:
         return failure(request,mission,values,error.errors,item)
     except ActivityConflict as error:
@@ -134,7 +135,7 @@ async def cancel_activity(request: Request,codigo: str,item_id: int):
     values = await read_form(request)
     try:
         version = int(values.get("version",""))
-        repository(request,mission).cancel(mission.id,item_id,version)
+        repository(request,mission).cancel(mission.id,item_id,version,actor_user_id=actor_id(request))
     except (ValueError,ActivityConflict) as error:
         if "application/json" in request.headers.get("accept",""):
             message = str(error) if isinstance(error,ActivityConflict) else "Versão inválida. Reabra os detalhes antes de cancelar."

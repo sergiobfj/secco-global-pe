@@ -1,0 +1,3 @@
+{% extends "base.html" %}{% block content %}
+<section class="auth-denied"><p class="eyebrow">Permissão de acesso</p><h1>Acesso não permitido.</h1><p>{{ message or 'Você não possui permissão para realizar esta operação.' }}</p><a class="action-button" href="/">Voltar para Hoje {{ icon('arrow') }}</a></section>
+{% endblock %}

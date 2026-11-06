@@ -1,13 +1,13 @@
 "use strict";
 // A preferência de missão é um cookie local do servidor, nunca autenticação.
 document.addEventListener("click", (event) => {
-  document.querySelectorAll(".mission-switch").forEach((menu) => {
+  document.querySelectorAll(".mission-switch,.account-menu").forEach((menu) => {
     if (!menu.contains(event.target)) menu.open = false;
   });
 });
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
-    document.querySelectorAll(".mission-switch[open]").forEach((menu) => {
+    document.querySelectorAll(".mission-switch[open],.account-menu[open]").forEach((menu) => {
       menu.open = false;
       menu.querySelector("summary").focus();
     });

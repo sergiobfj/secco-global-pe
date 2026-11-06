@@ -3,12 +3,11 @@ const path = require("node:path");
 const assert = require("node:assert/strict");
 
 async function acquireQA(browser, override) {
-  const manifest = JSON.parse(
-    await fs.readFile(
-      path.resolve(__dirname, "../.tools/qa-current.json"),
-      "utf8",
-    ),
-  );
+  let manifest;
+  for(let attempt=0;attempt<25;attempt++){
+    try{manifest=JSON.parse(await fs.readFile(path.resolve(__dirname,"../.tools/qa-current.json"),"utf8"));break;}
+    catch(error){if(error.code!=="ENOENT"||attempt===24)throw error;await new Promise(resolve=>setTimeout(resolve,200));}
+  }
   const url = new URL(manifest.url);
   assert.ok(
     url.protocol === "http:" &&
@@ -16,7 +15,7 @@ async function acquireQA(browser, override) {
     "QA somente em loopback.",
   );
   assert.ok(
-    !["8000", "8001", "8002"].includes(url.port),
+    !["8000", "8001", "8002", "8003"].includes(url.port),
     "Porta operacional recusada pelo cliente de QA.",
   );
   if (override)
@@ -27,7 +26,13 @@ async function acquireQA(browser, override) {
     );
   const headers = { "X-SECCO-QA-Instance": manifest.instance };
   const context = await browser.newContext({ extraHTTPHeaders: headers });
-  const response = await context.request.get(manifest.url + "/__qa__/identity");
+  let response;
+  try {
+    for (let attempt=0; attempt<25; attempt++) {
+      try { response=await context.request.get(manifest.url+"/__qa__/identity"); break; }
+      catch(error) { if(attempt===24 || !/ECONNREFUSED|ECONNRESET/.test(error.message)) throw error; await new Promise(resolve=>setTimeout(resolve,200)); }
+    }
+  } catch(error) { await context.close(); throw error; }
   assert.equal(
     response.status(),
     200,
@@ -42,6 +47,7 @@ async function acquireQA(browser, override) {
   await context.close();
   return {
     base: manifest.url,
+    authMode: manifest.auth_mode,
     headers,
     async shutdown() {
       const client = await browser.newContext({ extraHTTPHeaders: headers });

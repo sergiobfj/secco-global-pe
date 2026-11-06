@@ -3,7 +3,7 @@
 {% block content %}
 <section class="today-heading">
   <div><p class="eyebrow">HOJE · {{ weekday }} · {{ today.strftime('%d/%m/%Y') }}</p><h1>{{ mission.nome }}</h1><p>{{ mission.cidades|join(' · ') }} <span class="text-divider">/</span> Horário local da missão</p></div>
-  <a class="action-button" href="/missoes/{{ mission.codigo }}/atividades/nova?data={{ today.isoformat() }}"><span aria-hidden="true">+</span> Nova atividade</a>
+  {% if can_edit is not defined or can_edit %}<a class="action-button" href="/missoes/{{ mission.codigo }}/atividades/nova?data={{ today.isoformat() }}"><span aria-hidden="true">+</span> Nova atividade</a>{% endif %}
 </section>
 <section class="up-next" aria-labelledby="next-heading">
   <div class="next-label">{{ icon('clock') }}<h2 id="next-heading">Próximo compromisso</h2></div>

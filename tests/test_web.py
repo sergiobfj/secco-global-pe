@@ -19,6 +19,11 @@ def test_startup_initializes_database(client):
 ])
 def test_unsafe_configuration_refused(tmp_path,env,flag):
     database = tmp_path / "must-not-exist.sqlite3"
+    if env == "development" and not flag:
+        with TestClient(create_app(Settings(env,flag,database))) as protected:
+            assert protected.get("/",follow_redirects=False).status_code == 303
+            assert protected.get("/api/missoes").status_code == 503
+        return
     with pytest.raises(RuntimeError,match="não pode executar"):
         with TestClient(create_app(Settings(env,flag,database))):
             pass
