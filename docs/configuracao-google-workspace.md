@@ -6,7 +6,7 @@
 > **Distribuição pública:** nomes, e-mails, domínio Google Workspace, IDs de Drive/pastas e identificadores Google Cloud deste documento são fictícios. Resultados e decisões descritos referem-se ao projeto operacional.
 
 
-> Atualização local da etapa 06.1: as sete migrações já estão aplicadas e os cinco perfis já foram provisionados na ativação autorizada anterior. Não repetir scripts.init_db, migrações ou sync para testar esta correção. As instruções de preparação abaixo são históricas; o procedimento atual de reinício e nova tentativa está em validação da etapa 06.1 (`validacao-etapa061.md`, não incluído nesta etapa da distribuição). A autenticação Google real continua pendente de confirmação manual.
+> Atualização local da etapa 06.1: as sete migrações já estão aplicadas e os cinco perfis já foram provisionados na ativação autorizada anterior. Não repetir scripts.init_db, migrações ou sync para testar esta correção. As instruções de preparação abaixo são históricas; o procedimento atual de reinício e nova tentativa está em [validação da etapa 06.1](validacao-etapa061.md). A autenticação Google real continua pendente de confirmação manual.
 
 Estado: **implementação pronta, ativação real pendente**. Esta documentação não declara login Google real validado.
 

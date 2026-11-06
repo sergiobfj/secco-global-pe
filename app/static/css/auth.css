@@ -15,4 +15,33 @@
 .authorship{font-size:11px;line-height:1.8;color:#52675e;margin:20px 0}
 @media(max-width:600px){.login-header{padding:20px 24px}.login-header img{width:116px}.login-main{padding:44px 24px}.login-description{font-size:14px}.login-footer{padding:20px 24px;flex-wrap:wrap}.development-note{padding:10px 16px}.topbar-right{gap:8px}.mission-switch summary{padding-inline:4px}}
 
-.account-menu>summary{gap:8px}.account-short-name{font-size:12px}@media(max-width:600px){.account-short-name{display:none}}
+.account-menu>summary{gap:8px}.account-short-name{font-size:12px}@media(max-width:600px){.account-short-name{display:none}}.auth-denied {
+  width: 100%; max-width: 680px; margin: 28px auto 48px; padding: clamp(24px, 4vw, 48px);
+  border: 1px solid #dfe3d6; border-top: 3px solid #018790; border-radius: 6px; background: #fffef9;
+}
+.error-identity { display: flex; align-items: center; gap: 12px; padding-bottom: 24px; margin-bottom: 28px; border-bottom: 1px solid #dfe3d6; }
+.error-identity img { width: 25px; height: auto; }
+.error-identity span { font-size: 12px; font-weight: 700; letter-spacing: 0.02em; }
+.auth-denied > .eyebrow { color: #018790; font-size: 10px; letter-spacing: 1.2px; margin-bottom: 14px; }
+.auth-denied h1 { font-size: clamp(30px, 4vw, 42px); letter-spacing: -1.3px; line-height: 1.15; }
+.error-description { font-size: 15px; line-height: 1.8; margin-top: 20px; overflow-wrap: anywhere; }
+.error-help { font-size: 13px; line-height: 1.8; color: #52675e; margin-top: 12px; }
+.error-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.login-recovery-note { font-size: 12px; line-height: 1.8; color: #52675e; margin-top: 16px; }
+
+
+/* Acabamento e foco da identidade autenticada. */
+.account-menu > summary { padding: 4px 6px; border-radius: 5px; }
+.account-menu > summary:hover { background: #edf1e7; }
+.account-short-name { font-weight: 600; }
+.account-panel { border-radius: 6px; box-shadow: 0 6px 18px #1a413b0d; }
+.account-panel button { border-radius: 4px; }
+@media (max-width: 640px) {
+  .login-main { padding: 32px 20px; }
+  .login-card { padding: 26px 22px; }
+  .login-card h1 { font-size: 36px; margin-bottom: 20px; }
+  .auth-denied { margin: 8px auto 24px; padding: 24px 20px; }
+  .error-identity { margin-bottom: 24px; padding-bottom: 20px; }
+  .error-description { font-size: 14px; }
+  .error-actions .action-button { width: 100%; }
+}

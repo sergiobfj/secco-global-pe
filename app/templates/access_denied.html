@@ -1,3 +1,10 @@
 {% extends "base.html" %}{% block content %}
-<section class="auth-denied"><p class="eyebrow">Permissão de acesso</p><h1>Acesso não permitido.</h1><p>{{ message or 'Você não possui permissão para realizar esta operação.' }}</p><a class="action-button" href="/">Voltar para Hoje {{ icon('arrow') }}</a></section>
+<section class="auth-denied" aria-labelledby="denied-title">
+  <div class="error-identity"><img src="/static/brand/secco-symbol-forest.svg" alt="" width="32" height="39"><span>SECCO Global PE</span></div>
+  <p class="eyebrow">Permissão de acesso</p>
+  <h1 id="denied-title">Acesso não permitido.</h1>
+  <p class="error-description">{{ message or 'Você não possui permissão para realizar esta operação.' }}</p>
+  <p class="error-help">{% if current_user %}Sua sessão continua ativa. Volte para Hoje e acesse os registros permitidos para o seu perfil.{% else %}Abra a página de entrada para iniciar uma nova tentativa com sua conta autorizada.{% endif %}</p>
+  <div class="error-actions">{% if current_user %}<a class="action-button" href="/">Voltar para Hoje {{ icon('arrow') }}</a>{% else %}<a class="action-button" href="/login">Tentar novamente {{ icon('arrow') }}</a>{% endif %}</div>
+</section>
 {% endblock %}

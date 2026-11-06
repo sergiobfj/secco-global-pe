@@ -4,9 +4,19 @@ const assert = require("node:assert/strict");
 
 async function acquireQA(browser, override) {
   let manifest;
-  for(let attempt=0;attempt<25;attempt++){
-    try{manifest=JSON.parse(await fs.readFile(path.resolve(__dirname,"../.tools/qa-current.json"),"utf8"));break;}
-    catch(error){if(error.code!=="ENOENT"||attempt===24)throw error;await new Promise(resolve=>setTimeout(resolve,200));}
+  for (let attempt = 0; attempt < 25; attempt++) {
+    try {
+      manifest = JSON.parse(
+        await fs.readFile(
+          path.resolve(__dirname, "../.tools/qa-current.json"),
+          "utf8",
+        ),
+      );
+      break;
+    } catch (error) {
+      if (error.code !== "ENOENT" || attempt === 24) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
   }
   const url = new URL(manifest.url);
   assert.ok(
@@ -28,11 +38,20 @@ async function acquireQA(browser, override) {
   const context = await browser.newContext({ extraHTTPHeaders: headers });
   let response;
   try {
-    for (let attempt=0; attempt<25; attempt++) {
-      try { response=await context.request.get(manifest.url+"/__qa__/identity"); break; }
-      catch(error) { if(attempt===24 || !/ECONNREFUSED|ECONNRESET/.test(error.message)) throw error; await new Promise(resolve=>setTimeout(resolve,200)); }
+    for (let attempt = 0; attempt < 25; attempt++) {
+      try {
+        response = await context.request.get(manifest.url + "/__qa__/identity");
+        break;
+      } catch (error) {
+        if (attempt === 24 || !/ECONNREFUSED|ECONNRESET/.test(error.message))
+          throw error;
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
     }
-  } catch(error) { await context.close(); throw error; }
+  } catch (error) {
+    await context.close();
+    throw error;
+  }
   assert.equal(
     response.status(),
     200,

@@ -6,8 +6,8 @@ class AuthQueryFilter(logging.Filter):
     def filter(self, record):
         args = record.args
         if isinstance(args,tuple) and len(args)==5 and isinstance(args[2],str):
-            if args[2].split("?",1)[0].rstrip("/")=="/auth/google/callback":
-                record.args = (*args[:2], "/auth/google/callback", *args[3:])
+            if args[2].split("?",1)[0].rstrip("/")in ("/auth/google/callback","/__qa__/authorize"):
+                record.args = (*args[:2], args[2].split("?",1)[0], *args[3:])
         return True
 
 

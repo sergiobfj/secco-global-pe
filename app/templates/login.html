@@ -8,11 +8,16 @@
 <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
 <header class="login-header"><a href="/login" aria-label="SECCO Global PE"><img src="/static/brand/secco-logo-horizontal-forest.svg" alt="SECCO" width="1640" height="289"></a><span>GLOBAL PE <small>2026</small></span></header>
 <main class="login-main" id="conteudo" tabindex="-1"><section class="login-card" aria-labelledby="login-title">
-<p class="eyebrow">SECCO Global PE</p><h1 id="login-title">Acesse sua missão.</h1><p class="login-description">Sua agenda de hoje, suas atividades e os resultados da missão em um só lugar.</p>
+<p class="eyebrow">SECCO Global PE</p><h1 id="login-title">{{ 'Vamos tentar novamente?' if retry_from_login else 'Acesse sua missão.' }}</h1><p class="login-description">{{ 'Abra uma nova tentativa de entrada para continuar com sua conta SECCO.' if retry_from_login else 'Sua agenda de hoje, suas atividades e os resultados da missão em um só lugar.' }}</p>
 {% if login_error %}<div class="auth-message auth-error" role="alert">{{ login_error }}</div>{% endif %}
 {% if logged_out %}<div class="auth-message" role="status">Sessão encerrada neste aplicativo.</div>{% endif %}
 {% if not configured %}<div class="auth-message" role="status"><strong>Configuração do acesso pendente</strong><p>O login precisa ser configurado pelo responsável antes de liberar o acesso.</p></div>{% endif %}
+{% if retry_from_login %}
+<a class="google-button" href="/login">Tentar novamente <span aria-hidden="true">↗</span></a>
+<p class="login-recovery-note">A próxima tentativa começa em uma página segura, sem reutilizar o retorno anterior.</p>
+{% else %}
 <form method="post" action="/auth/google"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="google-button" type="submit" {% if not configured %}disabled aria-describedby="login-note"{% endif %}>Entrar com Google <span aria-hidden="true">↗</span></button></form>
+{% endif %}
 <p id="login-note" class="login-note">Acesso restrito às contas Google Workspace autorizadas da SECCO.</p>
 </section></main><footer class="login-footer"><span>SECCO LTDA</span><span>Engenharia · IA · Automação</span></footer>
 </body></html>

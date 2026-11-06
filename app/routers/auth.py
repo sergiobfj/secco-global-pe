@@ -22,10 +22,10 @@ ERRORS = {
 }
 
 
-def login_page(request, error=None, status_code=None, logged_out=False):
+def login_page(request, error=None, status_code=None, logged_out=False, retry_from_login=False):
     configured = request.app.state.settings.auth_ready
     response = render(request,"login.html",title="Entrar",configured=configured,
-        login_error=ERRORS.get(error),logged_out=logged_out)
+        login_error=ERRORS.get(error),logged_out=logged_out,retry_from_login=retry_from_login)
     response.status_code = status_code or (200 if configured else 503)
     return response
 
@@ -82,12 +82,15 @@ async def google_callback(request: Request):
         set_session_cookie(response,settings,session["token"],session["expires_at"],auth.clock())
         response.set_cookie(COOKIE,session["csrf"],httponly=True,secure=settings.secure_cookies,samesite="strict",path="/")
         response.delete_cookie("secco_mission",path="/")
+    # Callback oculta seus parâmetros com no-referrer. Um formulário POST nessa
+    # página enviaria Origin: null no navegador. A recuperação é sempre GET /login;
+    # a nova tentativa mantém a validação estrita de origem, CSRF e PKCE.
     except (IdentityDenied,InvalidIdentity):
-        response = login_page(request,"acesso-negado",status_code=403)
+        response = login_page(request,"acesso-negado",status_code=403,retry_from_login=True)
         if request.state.session_replaced:
             clear_session_cookie(response,settings)
     except AuthUnavailable:
-        response = login_page(request,"provedor-indisponivel",status_code=503)
+        response = login_page(request,"provedor-indisponivel",status_code=503,retry_from_login=True)
         clear_session_cookie(response,settings)
     if request.state.session_replaced:
         response.delete_cookie(LOGIN_COOKIE,httponly=True,secure=settings.secure_cookies,samesite="lax",path="/auth")

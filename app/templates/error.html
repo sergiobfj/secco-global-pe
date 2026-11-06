@@ -1,8 +1,9 @@
 {% extends "base.html" %}
-{% block content %}<section class="placeholder-page">
+{% block content %}<section class="auth-denied" aria-labelledby="missing-title">
+<div class="error-identity"><img src="/static/brand/secco-symbol-forest.svg" alt="" width="32" height="39"><span>SECCO Global PE</span></div>
 <p class="eyebrow">404 · CAMINHO NÃO ENCONTRADO</p>
-<h1>Vamos voltar à rota?</h1>
-<p>Esta página ou missão não foi encontrada.</p>
-<a class="primary-link" href="/">Voltar ao início {{ icon('arrow') }}</a>
-</section>
-{% endblock %}
+<h1 id="missing-title">Vamos voltar à rota?</h1>
+<p class="error-description">Esta página ou missão não foi encontrada.</p>
+<p class="error-help">Sua programação continua disponível. Volte à visão principal para seguir com a missão.</p>
+<div class="error-actions"><a class="action-button" href="/">Voltar ao início {{ icon('arrow') }}</a></div>
+</section>{% endblock %}
