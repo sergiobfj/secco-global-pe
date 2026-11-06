@@ -17,7 +17,17 @@ class ReceiptRepository:
 
     def _attachments(self,db,expense_id):
         return [dict(r) for r in db.execute('''SELECT a.*,o.volume_id,o.object_key,o.local_state,o.sync_state,
-            o.delete_requested_by FROM expense_attachments a LEFT JOIN receipt_local_objects o ON o.attachment_id=a.id
+            o.delete_requested_by,
+            CASE WHEN s.attachment_id IS NULL THEN NULL
+                 WHEN s.object_key=o.object_key AND s.volume_id=o.volume_id AND s.checksum=a.checksum
+                      AND s.official_name=a.official_name AND s.category=CASE e.tipo
+                      WHEN 'passagem_aerea' THEN 'passagens' WHEN 'diaria' THEN 'diarias'
+                      WHEN 'inscricao_evento' THEN 'inscricoes'
+                      WHEN 'aplicativo' THEN 'deslocamentos' WHEN 'taxi' THEN 'deslocamentos'
+                      WHEN 'intermunicipal' THEN 'deslocamentos' WHEN 'urbano' THEN 'deslocamentos' END
+                 THEN s.state ELSE 'erro' END AS drive_sync_state
+            FROM expense_attachments a LEFT JOIN receipt_local_objects o ON o.attachment_id=a.id
+            LEFT JOIN receipt_drive_sync s ON s.attachment_id=a.id JOIN expenses e ON e.id=a.expense_id
             WHERE a.expense_id=? ORDER BY a.created_at,a.id''',(expense_id,))]
 
     def _hydrate(self,db,row):
@@ -34,6 +44,14 @@ class ReceiptRepository:
             attachment['storage_label']=('Excluído localmente' if state=='excluido' else 'Exclusão pendente' if state=='exclusao_pendente'
                 else 'Armazenado localmente' if state=='armazenado' and attachment['available'] else 'Erro de armazenamento' if state
                 else 'Arquivo recebido temporariamente' if attachment['available'] else 'Erro de armazenamento')
+            sync=attachment.get('drive_sync_state')
+            attachment['sync_label']=(
+                'Sincronização suspensa' if state in ('excluido','exclusao_pendente') else
+                'Erro de sincronização' if sync=='erro' or (sync=='verificado' and not attachment['available']) else
+                'Sincronizado e verificado (simulação)' if sync=='verificado' else
+                'Aguardando sincronização' if sync in ('aguardando','enviando') else
+                'Aguardando sincronização' if state=='armazenado' else
+                'Sincronização não enfileirada')
         active=[a for a in item['attachments'] if a.get('local_state')!='excluido']
         item['effective_status']=item['status']
         if item['status']!='rascunho' and not any(a['available'] for a in active): item['effective_status']='pendente_comprovante'

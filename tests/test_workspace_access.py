@@ -279,7 +279,7 @@ def test_additive_migration_and_sessions_remain_integral(workspace):
     with connect(settings.database_path) as db:
         assert db.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
         assert db.execute('PRAGMA foreign_key_check').fetchall()==[]
-        assert db.execute('SELECT COUNT(*) FROM schema_migrations').fetchone()[0]==7
+        assert db.execute('SELECT COUNT(*) FROM schema_migrations').fetchone()[0]==8
         assert db.execute('SELECT COUNT(*) FROM participants').fetchone()[0]==4
 
 

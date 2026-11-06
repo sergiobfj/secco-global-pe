@@ -1,6 +1,14 @@
-"""Contratos de armazenamento e da integração futura. Nenhuma chamada ao Drive."""
+"""Contratos independentes de transporte e credenciais."""
 from dataclasses import dataclass
 from typing import BinaryIO, Protocol
+from app.core.drive_config import DriveConfiguration
+
+
+class DriveError(Exception):
+    """Falha de integração com código controlado, sem mensagens de provedores."""
+    def __init__(self, code):
+        self.code = code
+        super().__init__(code)
 
 
 @dataclass(frozen=True)
@@ -13,6 +21,9 @@ class StoredReceipt:
     size_bytes: int
     extension: str
     mime: str
+    mission_code: str = ''
+    official_name: str = ''
+    category: str = ''
 
 
 class ReceiptStorage(Protocol):
@@ -29,5 +40,7 @@ class ConfirmedRemoteReceipt:
 
 
 class SharedDriveAdapter(Protocol):
-    # Somente contrato futuro. Um resultado remoto exigirá resposta real da API.
-    def upload(self,item: StoredReceipt,stream: BinaryIO,*,idempotency_key: str)->ConfirmedRemoteReceipt: ...
+    configuration: DriveConfiguration
+    def reserve_id(self)->str: ...
+    def upload(self,item: StoredReceipt,stream: BinaryIO,*,idempotency_key: str,remote_id: str)->ConfirmedRemoteReceipt: ...
+    def verify(self,item: StoredReceipt,*,idempotency_key: str,remote_id: str)->ConfirmedRemoteReceipt | None: ...

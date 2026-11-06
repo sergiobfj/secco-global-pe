@@ -7,10 +7,12 @@ document.addEventListener("click", (event) => {
 });
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
-    document.querySelectorAll(".mission-switch[open],.account-menu[open]").forEach((menu) => {
-      menu.open = false;
-      menu.querySelector("summary").focus();
-    });
+    document
+      .querySelectorAll(".mission-switch[open],.account-menu[open]")
+      .forEach((menu) => {
+        menu.open = false;
+        menu.querySelector("summary").focus();
+      });
   }
 });
 function showErrors(form, errors) {

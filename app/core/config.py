@@ -30,6 +30,10 @@ class Settings:
     receipts_synthetic_enabled: bool = False
     receipts_storage_backend: str = "temporary"
     receipts_private_dir: Path | None = None
+    receipts_drive_mode: str = 'disabled'
+    google_drive_argentina_id: str = '0AARGENTINAEXEMPLO1'
+    google_drive_portugal_id: str = '0APORTUGALEXEMPLO01'
+    google_drive_folders_json: str = '{}'
 
     @classmethod
     def from_env(cls):
@@ -51,6 +55,10 @@ class Settings:
         except ValueError:
             raise RuntimeError("Os tempos de sessão devem ser números inteiros.") from None
         return cls(
+            receipts_drive_mode=os.getenv('RECEIPTS_DRIVE_MODE', 'disabled').strip().lower(),
+            google_drive_argentina_id=os.getenv('GOOGLE_DRIVE_ARGENTINA_ID', '0AARGENTINAEXEMPLO1').strip(),
+            google_drive_portugal_id=os.getenv('GOOGLE_DRIVE_PORTUGAL_ID', '0APORTUGALEXEMPLO01').strip(),
+            google_drive_folders_json=os.getenv('GOOGLE_DRIVE_FOLDERS_JSON', '{}'),
             receipts_storage_backend=os.getenv("RECEIPTS_STORAGE_BACKEND", "temporary").strip().lower(),
             receipts_private_dir=Path(os.environ["RECEIPTS_PRIVATE_DIR"]) if os.getenv("RECEIPTS_PRIVATE_DIR") else None,
             app_env=os.getenv("APP_ENV", "").strip().lower(),
@@ -113,6 +121,15 @@ class Settings:
 
     def validate(self):
         enforce_database_policy(self.database_path)
+        from app.core.drive_config import DriveConfiguration
+        DriveConfiguration(self.google_drive_argentina_id, self.google_drive_portugal_id,
+                           self.google_drive_folders_json).validate()
+        if self.receipts_drive_mode not in ('disabled', 'simulated'):
+            raise RuntimeError('Envio real ao Drive bloqueado nesta etapa.')
+        if self.receipts_drive_mode == 'simulated' and not (
+                testing_enabled() and self.app_env == 'development' and not self.dev_no_auth
+                and self.receipts_synthetic_enabled and self.receipts_storage_backend == 'local'):
+            raise RuntimeError('Drive simulado exige testes isolados e armazenamento local sintético autenticado.')
         if self.app_env not in ("development", "production") or (self.dev_no_auth and self.app_env != "development"):
             raise RuntimeError("Acesso sem login exige APP_ENV=development e DEV_NO_AUTH=true. Esta versão não pode executar com acesso público por omissão.")
         if not (60 <= self.session_idle_seconds <= self.session_absolute_seconds <= 2592000

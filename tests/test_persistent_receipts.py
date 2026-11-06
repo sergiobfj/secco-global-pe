@@ -61,7 +61,7 @@ def test_persistent_upload_and_private_metadata(persistent_client):
     assert len(file.stem)==64 and a['id'] not in file.name and a['original_name'] not in file.name
     assert a['checksum']==hashlib.sha256(png()).hexdigest() and a['official_name'] is None
     page=client.get(BASE+f'/{item}?aviso=salvo')
-    assert 'Armazenado localmente' in page.text and 'Pendente de sincronização' in page.text
+    assert 'Armazenado localmente' in page.text and 'Aguardando sincronização' in page.text
     assert str(settings.receipts_private_dir) not in page.text and '\u2014' not in page.text
     assert 'não substitui backup' in page.text
     response=client.get(BASE+f'/{item}/anexos/'+a['id'])
@@ -363,7 +363,7 @@ def test_idempotent_migration_and_sync_success_is_impossible(persistent_client):
     with connect(settings.database_path) as db:
         assert db.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
         assert db.execute('PRAGMA foreign_key_check').fetchall()==[]
-        assert db.execute('SELECT COUNT(*) FROM schema_migrations').fetchone()[0]==7
+        assert db.execute('SELECT COUNT(*) FROM schema_migrations').fetchone()[0]==8
     for sql in ("UPDATE receipt_local_objects SET sync_state='sincronizado'","UPDATE receipt_local_objects SET remote_reference='drive-falso'"):
         with pytest.raises(sqlite3.IntegrityError):
             with connect(settings.database_path) as db: db.execute(sql)
