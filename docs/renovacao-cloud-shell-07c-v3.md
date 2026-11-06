@@ -6,7 +6,7 @@
 > **Distribuição pública:** nomes, e-mails, domínio Google Workspace, IDs de Drive/pastas e identificadores Google Cloud deste documento são fictícios. Resultados e decisões descritos referem-se ao projeto operacional.
 
 
-> Procedimento v3 preservado para histórico. O ensaio v3 parou na ACL da raiz Argentina (política de 3 membros por missão). Usar a correção v4 (`correcao-acl-cloud-shell-07c-v4.md`, não incluído nesta etapa da distribuição). Não executar novamente o pacote v3 nem reutilizar seu aceite.
+> Procedimento v3 preservado para histórico. O ensaio v3 parou na ACL da raiz Argentina (política de 3 membros por missão). Usar a [correção v4](correcao-acl-cloud-shell-07c-v4.md). Não executar novamente o pacote v3 nem reutilizar seu aceite.
 
 ## Diagnóstico comprovado no código v2
 

@@ -1,4 +1,4 @@
-# Distribuição pública — estado 13 de 14
+# Distribuição pública — estado 14 de 14
 
 Esta cópia usa dados de exemplo e está separada da aplicação operacional. Países, eventos do programa e ativos de marca foram mantidos. Participantes, contas e identificadores de serviços são fictícios; a observação operacional sobre extensão de viagem foi retirada do seed e da documentação. Nenhuma licença de código aberto foi adicionada.
 
@@ -16,23 +16,24 @@ A migração 002 pública substitui nomes por fictícios e tem checksum `6bcc159
 
 Execute `python -m pytest -q -p no:cacheprovider -rfEs` na raiz do estado, com as dependências instaladas. Os testes usam bancos temporários e identidades/HTTP simulados.
 
-Execução desta distribuição, estado 13: **715 aprovados, 43 ignorados, 0 falhas e 0 erros**, saída 0. As contagens incluem a suíte integral coletada neste estado; testes ignorados não contam como aprovados. Quando houve sanitização textual posterior da agenda, seus testes de renderização e agenda foram executados novamente, sem alterar a lógica Python.
+Execução desta distribuição, estado 14: **715 aprovados, 77 ignorados, 0 falhas e 0 erros**, saída 0. As contagens incluem a suíte integral coletada neste estado; testes ignorados não contam como aprovados. Quando houve sanitização textual posterior da agenda, seus testes de renderização e agenda foram executados novamente, sem alterar a lógica Python.
 
 ### Testes ignorados
 
-Os testes de pacote/POSIX/renovação dependem de mapas, planos ou ZIPs operacionais ausentes em `artifacts/`. O motivo explícito é `requer artefatos operacionais privados: ...`. A presença desses skips não valida a cadeia histórica de pacotes.
+Os testes de pacote/POSIX/renovação/v4 dependem de mapas, planos ou ZIPs operacionais ausentes em `artifacts/`. O motivo explícito é `requer artefatos operacionais privados: ...`. A presença desses skips não valida a cadeia histórica de pacotes.
 
 | Módulo coletado | Ignorados |
 |---|---:|
 | `test_drive_cloud_shell_package.py` | 19 |
 | `test_drive_cloud_shell_posix.py` | 7 |
 | `test_drive_cloud_shell_renewal.py` | 17 |
+| `test_drive_cloud_shell_v4.py` | 34 |
 
 ## Proveniência e etapas
 
 Os estados 01–03 reutilizam snapshots preservados. Os estados 04–09 recuperam versões de arquivos registradas nas sessões de desenvolvimento, com a mesma sanitização pública e recomposição de versões completas. Os estados seguintes agrupam o código existente por funcionalidade e trazem as dependências necessárias com seus consumidores. Estes são estados preparados agora para publicação, sem datas retroativas ou alegação de reproduzir cada instante operacional.
 
-Funcionalidade desta etapa: `feat(drive): package portable Cloud Shell executor`. Cada commit futuro será criado somente após autorização, com a data real da criação e autoria confirmada.
+Funcionalidade desta etapa: `fix(drive): align Cloud Shell executor ACL policy with mission partners`. Cada commit futuro será criado somente após autorização, com a data real da criação e autoria confirmada.
 
 ## Validação operacional e validação pública
 
@@ -63,3 +64,7 @@ plan = subprocess.run([sys.executable, '-m', 'scripts.drive_probe',
 Path('artifacts/stage07c/offline-plan.json').write_text(plan, encoding='utf-8')
 ```
 
+
+## Limite da validação do executor v4
+
+Os 34 cenários v4 ignorados precisam da cadeia histórica privada v2/v3. O teste negativo com v3 fictício confirmou a recusa `zip_v3_alterado`, sem criar pacote v4 nem chamar a rede. Isso comprova a recusa do predecessor incompatível e não é apresentado como execução positiva da cadeia privada.
