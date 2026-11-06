@@ -1,0 +1,82 @@
+{% from "components/icons.html" import icon %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#1A413B">
+    <meta name="description" content="SECCO Global PE. Planejamento e acompanhamento das missões internacionais da SECCO.">
+    <title>{{ title }} | SECCO Global PE</title>
+    <link rel="icon" href="{{ url_for('static',path='/brand/secco-symbol-forest.svg') }}" type="image/svg+xml">
+    <link rel="manifest" href="{{ url_for('static',path='/manifest.webmanifest') }}">
+    <link rel="preload" href="{{ url_for('static',path='/fonts/space-grotesk-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ url_for('static',path='/fonts/manrope-latin.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="{{ url_for('static',path='/css/app.css') }}">
+    <script src="{{ url_for('static',path='/js/app.js') }}" defer>
+</script>
+</head>
+<body>
+<a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+<aside class="sidebar">
+    <a class="brand" href="/" aria-label="SECCO Global PE, início">
+<img class="official-logo" src="/static/brand/secco-logo-horizontal-cream.svg" alt="SECCO" width="1640" height="289">
+<span class="brand-sub">GLOBAL PE <span>2026</span>
+</span>
+</a>
+    <div class="nav-caption">SEU ESPAÇO DE MISSÃO</div>
+    <nav class="main-nav" aria-label="Navegação principal">
+    
+{% for key,label,mobile in [('inicio','Início','Início'),('planejamento','Planejamento','Planejamento'),('diario','Diário de Atividades','Diário'),('prestacao-de-contas','Prestação de Contas','Contas'),('organizacao','Organização','Organização')] %}
+        {% set href = (url_for('dashboard',codigo=mission.codigo) if mission else url_for('home')) if key=='inicio' else (url_for('mission_section',codigo=mission.codigo,section=key) if mission else url_for('section',section=key)) %}
+        <a href="{{ href }}" class="nav-item 
+{% if active==key %}is-active
+{% endif %}" 
+{% if active==key %}aria-current="page"
+{% endif %}>{{ icon(key) }}<span class="desktop-label">{{ label }}</span>
+<span class="mobile-label">{{ mobile }}</span>
+{% if active==key %}<span class="nav-mark" aria-hidden="true">
+</span>
+{% endif %}</a>
+    
+{% endfor %}
+    </nav>
+    <div class="sidebar-bottom">
+        <div class="sidebar-note">{{ icon('globe') }}<p>Conexões globais.<br>Impacto a partir de Pernambuco.</p>
+</div>
+        <div class="local-label">
+<span class="status-dot">
+</span> Ambiente local</div>
+        <div class="sidebar-sign">SECCO LTDA <span>Engenharia · IA · Automação</span>
+</div>
+    </div>
+</aside>
+<div class="workspace">
+    <header class="topbar">
+        <a href="/" class="topbar-title"><img class="header-logo" src="/static/brand/secco-logo-horizontal-forest.svg" alt="SECCO" width="1640" height="289"><span class="product-name">Global PE</span><span class="topbar-divider">/</span>
+<span>{{ mission.pais if mission else 'Visão geral' }}</span>
+</a>
+        <div class="topbar-right">
+{% if mission %}<details class="mission-switch">
+<summary>Trocar missão {{ icon('chevron') }}</summary>
+<div class="switch-menu">
+<a href="/missoes/portugal">Portugal</a>
+<a href="/missoes/argentina">Argentina</a>
+<a href="/?selecionar=1">Todas as missões</a>
+</div>
+</details>
+{% else %}<span class="topbar-program">Programa GLOBAL.PE <span>FACEPE</span>
+</span>
+{% endif %}<span class="secco-avatar"><img src="/static/brand/secco-symbol-forest.svg" alt="Símbolo SECCO" width="24" height="29"></span>
+</div>
+    </header>
+    <main id="conteudo" tabindex="-1">
+{% block content %}
+{% endblock %}</main>
+    <footer class="page-footer">
+<span>SECCO Global PE</span>
+<span>Do local ao global, com propósito.</span>
+<span>Novembro · 2026</span>
+</footer>
+</div>
+</body>
+</html>

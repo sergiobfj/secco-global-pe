@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="welcome">
+    <div>
+<p class="eyebrow">
+<span class="tiny-line">
+</span> INTERNACIONALIZAÇÃO · 2026</p>
+<p class="greeting">Boas-vindas à SECCO Global PE</p>
+<h1>De Pernambuco,<br>para o <span class="accent-word">mundo.</span>
+</h1>
+<p class="intro">Um espaço para conectar caminhos, acompanhar conquistas<br class="desktop-break"> e construir o próximo capítulo da SECCO.</p>
+</div>
+    <div class="overview-stamp" aria-label="{{ missions|length }} missões internacionais">
+<span class="orbital" aria-hidden="true">{{ icon('globe') }}</span>
+<strong>{{ '%02d'|format(missions|length) }}</strong>
+<span>missões internacionais</span>
+<span class="stamp-date">NOVEMBRO 2026</span>
+</div>
+</section>
+<section aria-labelledby="missions-heading">
+    <div class="section-heading">
+<div>
+<p class="eyebrow">PRÓXIMOS CAMINHOS</p>
+<h2 id="missions-heading">Suas missões</h2>
+</div>
+<span class="quiet-label">Dois países. Novas possibilidades.</span>
+</div>
+    <div class="mission-grid">
+    
+{% for m in missions %}
+    <article class="mission-card {{ m.codigo }}">
+        <div class="mission-art">
+<img src="{{ url_for('static',path='/images/'+m.codigo+'.svg') }}" alt="{{ 'Ilustração de Lisboa, com a Torre de Belém e a ponte sobre o Tejo' if m.codigo=='portugal' else 'Ilustração de Buenos Aires, com o Obelisco e a arquitetura da cidade' }}" width="800" height="360">
+<div class="art-label">
+<span class="country-code">{{ 'PT' if m.codigo=='portugal' else 'AR' }}</span>
+<span>{{ 'EUROPA' if m.codigo=='portugal' else 'AMÉRICA DO SUL' }}</span>
+</div>
+<span class="art-number">0{{ loop.index }}</span>
+<h3>{{ m.pais }}</h3>
+</div>
+        <div class="mission-card-content">
+            <div class="mission-card-status">
+<span class="pill">
+<span class="status-dot">
+</span>{{ situations[m.codigo].mensagem }}</span>
+<span class="edital-label">Edital {{ m.edital }}</span>
+</div>
+            <p class="mission-period">{{ m.periodo }}</p>
+            <p class="mission-locations">{{ icon('pin') }}{{ m.cidades|join(' · ') }}</p>
+            <div class="mission-team">
+<div class="avatar-stack" aria-hidden="true">
+{% for p in m.participantes %}<span>{{ p.nome.split()[0][0] }}{{ p.nome.split()[-1][0] if p.nome.split()|length > 1 else '' }}</span>
+{% endfor %}</div>
+<div>
+<span class="small-label">PARTICIPANTES</span>
+<p>{{ m.nomes_participantes }}</p>
+</div>
+</div>
+            <a class="mission-link" href="{{ url_for('dashboard',codigo=m.codigo) }}">Acessar missão {{ icon('arrow') }}</a>
+        </div>
+    </article>
+    
+{% endfor %}
+    </div>
+</section>
+<div class="home-footnote">
+<span class="footnote-symbol" aria-hidden="true">↗</span>
+<p>
+<strong>Inovação que atravessa fronteiras.</strong> Missões do programa GLOBAL.PE, com apoio da FACEPE.</p>
+</div>
+
+{% endblock %}

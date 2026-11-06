@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<a href="/" class="back-link">{{ icon('back') }} Todas as missões</a>
+<section class="dashboard-hero {{ mission.codigo }}">
+    <div class="dashboard-heading">
+<p class="eyebrow">GLOBAL.PE · EDITAL {{ mission.edital }}</p>
+<h1>{{ mission.nome }}</h1>
+<p class="dashboard-locations">{{ icon('pin') }}{{ mission.cidades|join(' · ') }}</p>
+<p class="dashboard-period">{{ mission.periodo }} <span>Período oficial</span>
+</p>
+<div class="dashboard-people">
+{% for p in mission.participantes %}<div>
+<span class="person-initial" aria-hidden="true">{{ p.nome[0] }}</span>
+<span>{{ p.nome }}
+{% if p.financiado_pela_subvencao %}<small>Custeado pela subvenção</small>
+{% else %}<small>Participante da missão</small>
+{% endif %}</span>
+</div>
+{% endfor %}</div>
+</div>
+    <div class="countdown" aria-label="Situação da missão">
+<span class="countdown-top">{{ icon('globe') }} {{ mission.pais }}</span>
+{% if situation.dias is not none %}<div class="countdown-value">{{ '%02d'|format(situation.dias) }}<span>{{ 'dia para a missão' if situation.dias==1 else 'dias para a missão' }}</span>
+</div>
+<p>O próximo capítulo está chegando.</p>
+{% else %}<div class="countdown-state">{{ situation.mensagem }}</div>
+<p>{{ 'Acompanhe os resultados e os registros.' if situation.codigo=='concluida' else 'Cada conexão conta.' }}</p>
+{% endif %}<span class="countdown-bottom">{{ mission.data_inicio.strftime('%d.%m') }} <span>→</span> {{ mission.data_fim.strftime('%d.%m.%Y') }}</span>
+</div>
+</section>
+<section class="summary-section" aria-labelledby="summary-heading">
+<div class="section-heading compact">
+<h2 id="summary-heading">O caminho até as metas</h2>
+<span class="quiet-label">Resultados registrados na missão</span>
+</div>
+<div class="metrics">
+
+{% for goal in mission.metas %}<article class="metric">
+<p class="small-label">{{ goal.rotulo }}</p>
+<div class="metric-number">{{ '%02d'|format(goal.realizado) }} <span>/ {{ '%02d'|format(goal.quantidade_alvo) }}</span>
+</div>
+<progress value="{{ goal.realizado }}" max="{{ goal.quantidade_alvo }}" aria-label="{{ goal.rotulo }}: {{ goal.realizado }} de {{ goal.quantidade_alvo }}">
+</progress>
+<p class="metric-caption">Meta: {{ goal.quantidade_alvo }} {{ 'reuniões qualificadas' if goal.tipo_meta=='reuniao_qualificada' else ('LOIs' if goal.tipo_meta=='loi' else 'manifestações formais') }}</p>
+</article>
+{% endfor %}
+<article class="metric next-event">
+<p class="small-label">{{ icon('clock') }} Próximo compromisso</p>
+{% if next_event %}<h3>{{ next_event.titulo }}</h3>
+<p>{{ next_event.inicio.strftime('%d/%m às %H:%M') }}</p>
+{% if next_event.local %}<p>{{ next_event.local }}</p>
+{% endif %}
+{% else %}<h3>A agenda está aberta.</h3>
+<p>Nenhum compromisso cadastrado.</p>
+{% endif %}</article>
+</div>
+</section>
+<section class="quick-section" aria-labelledby="quick-heading">
+<h2 id="quick-heading" class="visually-hidden">Acesso rápido</h2>
+<div class="quick-links">
+{% for key,label in [('planejamento','Planejamento'),('diario','Diário'),('prestacao-de-contas','Prestação de Contas'),('documentos','Documentos')] %}<a href="{{ url_for('mission_section',codigo=mission.codigo,section=key) }}">{{ icon(key) }}<span>{{ label }}<small>Em desenvolvimento</small>
+</span>{{ icon('arrow','quick-arrow') }}</a>
+{% endfor %}</div>
+</section>
+<div class="dashboard-columns">
+<section class="agenda" aria-labelledby="agenda-heading">
+<div class="section-heading compact">
+<h2 id="agenda-heading">Agenda do dia</h2>
+<span class="date-label">{{ today.strftime('%d/%m/%Y') }}</span>
+</div>
+<p class="section-subtitle">Horário local da missão · {{ mission.timezone }}</p>
+{% if today_events %}<ol class="event-list">
+{% for event in today_events %}<li>
+<time datetime="{{ event.inicio.isoformat() }}">{{ event.inicio.strftime('%H:%M') }}</time>
+<div>
+<h3>{{ event.titulo }}</h3>
+{% if event.local %}<p>{{ event.local }}</p>
+{% endif %}</div>
+</li>
+{% endfor %}</ol>
+{% else %}<div class="empty-state">{{ icon('planejamento') }}<h3>Um dia de possibilidades.</h3>
+<p>Nenhum compromisso cadastrado para hoje.<br>As atividades aparecerão aqui quando forem registradas.</p>
+</div>
+{% endif %}</section>
+<section class="tasks" aria-labelledby="tasks-heading">
+<div class="section-heading compact">
+<h2 id="tasks-heading">Pendências</h2>
+<span class="count-label">{{ tasks|length }}</span>
+</div>
+{% if tasks %}<ul class="task-list">
+{% for task in tasks %}<li>{{ task.titulo }}</li>
+{% endfor %}</ul>
+{% else %}<div class="empty-state">{{ icon('check') }}<h3>Tudo tranquilo por aqui.</h3>
+<p>Nenhuma pendência cadastrada<br>para esta missão.</p>
+</div>
+{% endif %}</section>
+</div>
+<section class="mission-context" aria-labelledby="context-heading">
+<div>
+<p class="eyebrow">NO HORIZONTE</p>
+<h2 id="context-heading">Atividades previstas</h2>
+<p>Referências para o planejamento.<br> Não representam agendamentos confirmados.</p>
+</div>
+<div>
+<ul>
+{% for activity in mission.atividades_previstas %}<li>{{ activity }}</li>
+{% endfor %}</ul>
+{% if mission.observacoes %}<p class="context-note">{{ mission.observacoes }}</p>
+{% endif %}</div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<a class="back-link" href="{{ url_for('dashboard',codigo=mission.codigo) if mission else '/' }}">{{ icon('back') }}{{ 'Voltar à missão' if mission else 'Voltar ao início' }}</a>
+<section class="placeholder-page">
+<p class="eyebrow">{{ mission.nome if mission else 'SECCO GLOBAL PE' }}</p>
+<div class="placeholder-icon">{{ icon(active) }}</div>
+<h1>{{ title }}</h1>
+<p class="placeholder-state">Funcionalidade em desenvolvimento</p>
+<p class="placeholder-description">{{ description }}</p>
+<span class="small-label">CADA ETAPA, NO SEU TEMPO.</span>
+<a class="primary-link" href="{{ url_for('dashboard',codigo=mission.codigo) if mission else '/' }}">{{ 'Acompanhar a missão' if mission else 'Explorar as missões' }}{{ icon('arrow') }}</a>
+</section>
+
+{% endblock %}
